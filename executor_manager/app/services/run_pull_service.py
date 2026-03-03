@@ -61,6 +61,8 @@ class RunPullService:
         self._logged_started = False
         self._windows_until: dict[str, datetime] = {}
         self._window_locks: dict[str, asyncio.Lock] = {}
+        self._inflight_run_ids: set[str] = set()
+        self._inflight_lock = asyncio.Lock()
 
     def _get_window_lock(self, window_id: str) -> asyncio.Lock:
         lock = self._window_locks.get(window_id)
@@ -68,6 +70,17 @@ class RunPullService:
             lock = asyncio.Lock()
             self._window_locks[window_id] = lock
         return lock
+
+    async def _register_inflight_run(self, run_id: str) -> bool:
+        async with self._inflight_lock:
+            if run_id in self._inflight_run_ids:
+                return False
+            self._inflight_run_ids.add(run_id)
+            return True
+
+    async def _release_inflight_run(self, run_id: str) -> None:
+        async with self._inflight_lock:
+            self._inflight_run_ids.discard(run_id)
 
     def set_window_until(self, window_id: str, until_utc: datetime) -> None:
         if not window_id.strip():
@@ -214,12 +227,25 @@ class RunPullService:
             logger.error(f"Invalid claim payload: {claim}")
             return
 
+        run_id_str = str(run_id)
+        if not await self._register_inflight_run(run_id_str):
+            logger.warning(
+                "Duplicate run claim detected while dispatch still in progress; skipping duplicate dispatch",
+                extra={
+                    "run_id": run_id_str,
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "worker_id": self.worker_id,
+                },
+            )
+            return
+
         container_mode = config_snapshot.get("container_mode", "ephemeral")
         container_id = config_snapshot.get("container_id")
 
         callback_url = f"{self.settings.callback_base_url}/api/v1/callback"
         ctx = {
-            "run_id": str(run_id),
+            "run_id": run_id_str,
             "session_id": session_id,
             "user_id": user_id,
         }
@@ -465,3 +491,5 @@ class RunPullService:
                 logger.error(
                     f"Failed to cancel task for session {session_id}: {cancel_err}"
                 )
+        finally:
+            await self._release_inflight_run(run_id_str)

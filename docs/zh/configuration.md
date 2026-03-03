@@ -72,7 +72,7 @@
 - `TASK_PULL_ENABLED`（默认 `true`）：是否从 Backend run queue 拉取任务
 - `MAX_CONCURRENT_TASKS`（默认 `5`）
 - `TASK_PULL_INTERVAL_SECONDS`（默认 `2`）
-- `TASK_CLAIM_LEASE_SECONDS`（默认 `180`）：claim 的租约时间。需要覆盖 Manager 侧从 claim 到成功 start_run 的耗时（可能包含技能/附件 staging、拉起 Executor 容器等），否则 run 可能在租约过期后被重新 claim，导致重复调度/重复启动容器。
+- `TASK_CLAIM_LEASE_SECONDS`（默认 `900`）：claim 的租约时间。需要覆盖 Manager 侧从 claim 到成功 start_run 的耗时（可能包含技能/附件 staging、拉起 Executor 容器等），否则 run 可能在租约过期后被重新 claim，导致重复调度/重复启动容器。
 - `SCHEDULE_CONFIG_PATH`：可选，提供 TOML/JSON schedule 配置时会作为 source of truth
 
 工作区清理（可选）：

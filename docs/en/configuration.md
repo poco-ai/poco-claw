@@ -75,7 +75,7 @@ Scheduling & pulling:
 - `TASK_PULL_ENABLED` (default `true`): whether to pull tasks from Backend run queue
 - `MAX_CONCURRENT_TASKS` (default `5`)
 - `TASK_PULL_INTERVAL_SECONDS` (default `2`)
-- `TASK_CLAIM_LEASE_SECONDS` (default `180`): claim lease duration. It must cover the time from claim to start_run (including skill/attachment staging, launching executor containers, etc.) to avoid duplicate scheduling.
+- `TASK_CLAIM_LEASE_SECONDS` (default `900`): claim lease duration. It must cover the time from claim to start_run (including skill/attachment staging, launching executor containers, etc.) to avoid duplicate scheduling.
 - `SCHEDULE_CONFIG_PATH`: optional TOML/JSON schedule config, treated as source of truth
 
 Workspace cleanup (optional):

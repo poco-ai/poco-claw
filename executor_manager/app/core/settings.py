@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # NOTE: This lease must cover "claim -> start_run" time on the manager side. That path can
     # include staging skills/attachments + spawning the executor container, which may take
     # longer than 30s on slow networks or large repos.
-    task_claim_lease_seconds: int = Field(default=180, alias="TASK_CLAIM_LEASE_SECONDS")
+    task_claim_lease_seconds: int = Field(default=900, alias="TASK_CLAIM_LEASE_SECONDS")
 
     # Optional schedule config file (TOML/JSON). When provided, it becomes the source of truth.
     schedule_config_path: str | None = Field(default=None, alias="SCHEDULE_CONFIG_PATH")
