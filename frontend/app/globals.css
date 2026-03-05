@@ -75,6 +75,22 @@
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   --tracking-normal: var(--tracking-normal);
+  --text-xs: var(--font-size-xs);
+  --text-xs--line-height: 1.25rem;
+  --text-sm: var(--font-size-sm);
+  --text-sm--line-height: 1.375rem;
+  --text-base: var(--font-size-base);
+  --text-base--line-height: 1.5rem;
+  --text-lg: var(--font-size-lg);
+  --text-lg--line-height: 1.625rem;
+  --text-xl: var(--font-size-xl);
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: var(--font-size-2xl);
+  --text-2xl--line-height: 2rem;
+  --text-3xl: var(--font-size-3xl);
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: var(--font-size-4xl);
+  --text-4xl--line-height: 2.5rem;
 
   /* Shadows */
   --shadow-2xl: var(--shadow-2xl);
@@ -151,6 +167,14 @@
   --sidebar-ring: oklch(0.8348 0.1302 160.908);
 
   /* Typography */
+  --font-size-xs: clamp(0.74rem, 0.03vw + 0.73rem, 0.8rem);
+  --font-size-sm: clamp(0.86rem, 0.06vw + 0.83rem, 0.95rem);
+  --font-size-base: clamp(0.96rem, 0.12vw + 0.91rem, 1.08rem);
+  --font-size-lg: clamp(1.08rem, 0.2vw + 0.98rem, 1.22rem);
+  --font-size-xl: clamp(1.2rem, 0.28vw + 1.08rem, 1.38rem);
+  --font-size-2xl: clamp(1.36rem, 0.42vw + 1.18rem, 1.68rem);
+  --font-size-3xl: clamp(1.56rem, 0.58vw + 1.32rem, 2.02rem);
+  --font-size-4xl: clamp(1.84rem, 0.82vw + 1.46rem, 2.44rem);
   --font-sans:
     -apple-system, system-ui, "Segoe UI Variable Display", "Segoe UI",
     Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji",

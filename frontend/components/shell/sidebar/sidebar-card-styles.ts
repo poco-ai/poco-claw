@@ -4,7 +4,7 @@ export const SIDEBAR_CARD_BASE_CLASS =
 export const SIDEBAR_CARD_WITH_ACTION_CLASS = `${SIDEBAR_CARD_BASE_CLASS} pr-8 group-data-[collapsible=icon]:pr-0`;
 
 export const SIDEBAR_CARD_TEXT_CLASS =
-  "flex-1 min-w-0 truncate text-sm group-data-[collapsible=icon]:hidden";
+  "flex-1 min-w-0 truncate text-base group-data-[collapsible=icon]:hidden";
 
 export const SIDEBAR_CARD_NESTED_INSET_CLASS =
   "pl-6 group-data-[collapsible=icon]:pl-0";

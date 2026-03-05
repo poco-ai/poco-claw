@@ -155,7 +155,7 @@ export function SidebarHeaderSection({
             tooltip={t("sidebar.newTask")}
           >
             <PenSquare className="size-4 shrink-0 transition-transform duration-200 group-hover/new-task:rotate-12 group-hover/new-task:scale-110" />
-            <span className="text-sm truncate group-data-[collapsible=icon]:hidden">
+            <span className="text-base truncate group-data-[collapsible=icon]:hidden">
               {t("sidebar.newTask")}
             </span>
           </SidebarMenuButton>
@@ -195,7 +195,7 @@ export function SidebarHeaderSection({
                 tooltip={t(labelKey, defaultLabel)}
               >
                 <Icon className={cn("size-4 shrink-0", iconAnimation)} />
-                <span className="text-sm truncate group-data-[collapsible=icon]:hidden">
+                <span className="text-base truncate group-data-[collapsible=icon]:hidden">
                   {t(labelKey, defaultLabel)}
                 </span>
                 {id === "search" && (
