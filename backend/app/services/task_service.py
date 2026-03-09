@@ -16,6 +16,7 @@ from app.repositories.user_plugin_install_repository import UserPluginInstallRep
 from app.repositories.user_skill_install_repository import UserSkillInstallRepository
 from app.schemas.session import TaskConfig
 from app.schemas.task import TaskEnqueueRequest, TaskEnqueueResponse
+from app.services.model_config_service import get_allowed_model_ids
 
 
 class TaskService:
@@ -28,7 +29,7 @@ class TaskService:
         Rules:
         - `model` unset/empty -> removed (use DEFAULT_MODEL)
         - `model` equals settings.default_model -> removed (treat as default; do not pin)
-        - otherwise `model` must be in settings.model_list
+        - otherwise `model` must be in the backend model catalog
         """
         if not isinstance(config, dict):
             return
@@ -61,7 +62,7 @@ class TaskService:
             config.pop("model", None)
             return
 
-        allowed = {m.strip() for m in (settings.model_list or []) if (m or "").strip()}
+        allowed = set(get_allowed_model_ids(settings))
         if value not in allowed:
             raise AppException(
                 error_code=ErrorCode.BAD_REQUEST,
