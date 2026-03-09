@@ -1207,7 +1207,8 @@
     "namePlaceholder": "Aufgabennamen eingeben",
     "toasts": {
       "renamed": "Aufgabe umbenannt",
-      "renameFailed": "Umbenennung fehlgeschlagen"
+      "renameFailed": "Umbenennung fehlgeschlagen",
+      "pinFailed": "Anheftungsstatus konnte nicht aktualisiert werden"
     }
   },
   "project": {

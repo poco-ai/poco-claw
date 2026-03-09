@@ -1306,7 +1306,8 @@
     "namePlaceholder": "Enter task name",
     "toasts": {
       "renamed": "Task renamed",
-      "renameFailed": "Failed to rename task"
+      "renameFailed": "Failed to rename task",
+      "pinFailed": "Failed to update pin status"
     }
   },
   "project": {

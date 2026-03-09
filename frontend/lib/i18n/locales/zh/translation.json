@@ -1306,7 +1306,8 @@
     "namePlaceholder": "请输入任务名称",
     "toasts": {
       "renamed": "已重命名任务",
-      "renameFailed": "重命名失败"
+      "renameFailed": "重命名失败",
+      "pinFailed": "更新置顶状态失败"
     }
   },
   "project": {

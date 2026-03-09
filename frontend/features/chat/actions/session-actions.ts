@@ -257,3 +257,15 @@ export async function renameSessionTitleAction(input: RenameSessionTitleInput) {
   const { sessionId, title } = renameSessionTitleSchema.parse(input);
   return chatService.updateSession(sessionId, { title });
 }
+
+const setSessionPinSchema = z.object({
+  sessionId: z.string().trim().min(1, VALIDATION_ERRORS.missingSessionId),
+  isPinned: z.boolean(),
+});
+
+export type SetSessionPinInput = z.infer<typeof setSessionPinSchema>;
+
+export async function setSessionPinAction(input: SetSessionPinInput) {
+  const { sessionId, isPinned } = setSessionPinSchema.parse(input);
+  return chatService.updateSession(sessionId, { is_pinned: isPinned });
+}

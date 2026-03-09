@@ -48,6 +48,7 @@ class SessionUpdateRequest(BaseModel):
     status: str | None = None
     sdk_session_id: str | None = None
     title: str | None = None
+    is_pinned: bool | None = None
     workspace_archive_url: str | None = None
     project_id: UUID | None = None
     state_patch: dict[str, Any] | None = None
@@ -65,6 +66,8 @@ class SessionResponse(BaseModel):
     project_id: UUID | None
     sdk_session_id: str | None
     title: str | None = None
+    is_pinned: bool = False
+    pinned_at: datetime | None = None
     config_snapshot: dict[str, Any] | None
     workspace_archive_url: str | None
     state_patch: AgentCurrentState | None = None

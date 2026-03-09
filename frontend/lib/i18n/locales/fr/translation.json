@@ -1203,7 +1203,8 @@
     "namePlaceholder": "Entrez le nom de la tâche",
     "toasts": {
       "renamed": "Tâche renommée",
-      "renameFailed": "Échec du renommage"
+      "renameFailed": "Échec du renommage",
+      "pinFailed": "Échec de la mise à jour de l'état d'épinglage"
     }
   },
   "project": {

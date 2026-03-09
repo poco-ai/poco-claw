@@ -1203,7 +1203,8 @@
     "namePlaceholder": "タスク名を入力",
     "toasts": {
       "renamed": "タスク名を変更しました",
-      "renameFailed": "タスク名の変更に失敗しました"
+      "renameFailed": "タスク名の変更に失敗しました",
+      "pinFailed": "ピン留め状態の更新に失敗しました"
     }
   },
   "project": {

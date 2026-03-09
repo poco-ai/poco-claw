@@ -113,6 +113,15 @@ class SessionService:
                     )
                 db_session.title = title
 
+        if "is_pinned" in request.model_fields_set:
+            if request.is_pinned:
+                if not db_session.is_pinned:
+                    db_session.is_pinned = True
+                    db_session.pinned_at = datetime.now(timezone.utc)
+            else:
+                db_session.is_pinned = False
+                db_session.pinned_at = None
+
         if request.status is not None:
             db_session.status = request.status
         if request.sdk_session_id is not None:

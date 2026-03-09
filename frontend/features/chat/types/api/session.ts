@@ -12,6 +12,7 @@ export interface SessionUpdateRequest {
   status?: string | null;
   sdk_session_id?: string | null;
   title?: string | null;
+  is_pinned?: boolean | null;
   workspace_archive_url?: string | null;
   state_patch?: ApiStatePatch | null;
   workspace_files_prefix?: string | null;
@@ -59,6 +60,8 @@ export interface SessionResponse {
   sdk_session_id: string | null;
   project_id?: string | null;
   title?: string | null;
+  is_pinned?: boolean;
+  pinned_at?: string | null;
   config_snapshot: Record<string, unknown> | null;
   workspace_archive_url: string | null;
   state_patch?: ApiStatePatch | null;

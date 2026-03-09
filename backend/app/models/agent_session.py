@@ -1,7 +1,8 @@
+from datetime import datetime
 import uuid
 from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy import Boolean, ForeignKey, Index, JSON, String, Text, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, JSON, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, TimestampMixin
@@ -54,6 +55,12 @@ class AgentSession(Base, TimestampMixin):
         String(50), nullable=True
     )
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_pinned: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false"), nullable=False
+    )
+    pinned_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     kind: Mapped[str] = mapped_column(
         String(50),
         default="chat",
