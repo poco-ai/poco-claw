@@ -1,4 +1,9 @@
 import type { LucideIcon } from "lucide-react";
+import type {
+  BaseUrlSource,
+  CredentialState,
+  ModelProvider,
+} from "@/features/chat/types/api/models";
 
 export type SettingsTabId = "account" | "models" | "usage" | "shortcuts";
 
@@ -14,10 +19,21 @@ export interface SettingsSidebarItem {
 }
 
 export type ApiProviderConfig = {
-  enabled: boolean;
-  key: string;
+  providerId: string;
+  displayName: string;
+  apiKeyEnvKey: string;
+  baseUrlEnvKey: string;
+  credentialState: CredentialState;
+  defaultBaseUrl: string;
+  effectiveBaseUrl: string;
+  baseUrlSource: BaseUrlSource;
+  models: ModelProvider["models"];
+  keyInput: string;
   useCustomBaseUrl: boolean;
-  baseUrl: string;
+  baseUrlInput: string;
+  hasStoredUserKey: boolean;
+  hasStoredUserBaseUrl: boolean;
+  isSaving: boolean;
 };
 
 export interface UsageAnalyticsMetricSummary {
