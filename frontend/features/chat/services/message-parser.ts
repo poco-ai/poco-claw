@@ -87,6 +87,7 @@ export function parseConfigSnapshot(
     mcp_server_ids: parseIds(raw.mcp_server_ids),
     skill_ids: parseIds(raw.skill_ids),
     plugin_ids: parseIds(raw.plugin_ids),
+    model: isNonEmptyString(raw.model) ? raw.model.trim() : undefined,
     browser_enabled:
       typeof raw.browser_enabled === "boolean"
         ? raw.browser_enabled

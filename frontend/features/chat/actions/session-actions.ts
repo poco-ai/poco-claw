@@ -88,6 +88,7 @@ const sendMessageSchema = z
     sessionId: z.string().trim().min(1, VALIDATION_ERRORS.missingSessionId),
     content: z.string(),
     attachments: z.array(inputFileSchema).optional(),
+    model: z.string().trim().optional().nullable(),
   })
   .refine(
     (data) =>
@@ -134,13 +135,15 @@ export async function createSessionAction(input: CreateSessionInput) {
 }
 
 export async function sendMessageAction(input: SendMessageInput) {
-  const { sessionId, content, attachments } = sendMessageSchema.parse(input);
+  const { sessionId, content, attachments, model } =
+    sendMessageSchema.parse(input);
   // Ensure we have a prompt if content is empty but attachments exist
   const finalContent =
     content.trim() || (attachments?.length ? "Uploaded files" : content);
   const result = await chatService.sendMessage(
     sessionId,
     finalContent,
+    model,
     attachments,
   );
   return {

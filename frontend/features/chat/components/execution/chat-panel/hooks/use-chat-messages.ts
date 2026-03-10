@@ -27,7 +27,11 @@ interface UseChatMessagesReturn {
   isLoadingHistory: boolean;
   isTyping: boolean;
   showTypingIndicator: boolean;
-  sendMessage: (content: string, attachments?: InputFile[]) => Promise<void>;
+  sendMessage: (
+    content: string,
+    attachments?: InputFile[],
+    model?: string | null,
+  ) => Promise<void>;
   beginOptimisticRegenerate: (assistantMessageId: number) => string;
   beginOptimisticEditMessage: (args: {
     userMessageId: number;
@@ -488,7 +492,11 @@ export function useChatMessages({
 
   // Send message and immediately fetch updated messages
   const sendMessage = useCallback(
-    async (content: string, attachments?: InputFile[]) => {
+    async (
+      content: string,
+      attachments?: InputFile[],
+      model?: string | null,
+    ) => {
       if (!session?.session_id) return;
 
       const normalizedContent = content.trim();
@@ -515,6 +523,7 @@ export function useChatMessages({
           sessionId,
           content: normalizedContent,
           attachments,
+          model,
         });
 
         // Refresh runs so multi-turn conversations only show real user inputs.

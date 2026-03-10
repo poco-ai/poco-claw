@@ -56,6 +56,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/hooks/use-language";
 import { useAppShell } from "@/components/shell/app-shell-context";
+import { ModelSelector } from "@/features/chat/components/chat/model-selector";
+import { useModelCatalog } from "@/features/chat/hooks/use-model-catalog";
 
 interface ChatPanelProps {
   session: ExecutionSession | null;
@@ -139,6 +141,13 @@ export function ChatPanel({
   const { refreshTasks, touchTask } = useTaskHistoryContext();
   const { projects, pinnedTaskIds, toggleTaskPin, moveTask, removeTask } =
     useAppShell();
+  const {
+    modelConfig,
+    modelOptions,
+    isLoading: isLoadingModelCatalog,
+  } = useModelCatalog({
+    enabled: Boolean(session?.session_id),
+  });
   const [isCancelling, setIsCancelling] = React.useState(false);
   const [isExportingImage, setIsExportingImage] = React.useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = React.useState(false);
@@ -151,6 +160,7 @@ export function ChatPanel({
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const [quoteSelection, setQuoteSelection] =
     React.useState<QuoteSelectionState | null>(null);
+  const [draftModelId, setDraftModelId] = React.useState<string | null>(null);
 
   // Message management hook
   const {
@@ -178,6 +188,23 @@ export function ChatPanel({
   // Determine if session is running/active
   const isSessionActive =
     session?.status === "running" || session?.status === "pending";
+  const defaultModelId = (modelConfig?.default_model || "").trim();
+  const persistedModelId = (
+    session?.config_snapshot?.model ||
+    defaultModelId ||
+    ""
+  ).trim();
+  const selectedModelId =
+    (draftModelId || persistedModelId || "").trim() || null;
+  const selectedModelLabel = React.useMemo(() => {
+    if (!selectedModelId) {
+      return null;
+    }
+    return (
+      modelOptions.find((option) => option.modelId === selectedModelId)
+        ?.displayName || selectedModelId
+    );
+  }, [modelOptions, selectedModelId]);
 
   const {
     requests: userInputRequests,
@@ -211,11 +238,32 @@ export function ChatPanel({
   React.useEffect(() => {
     setStickyUserInput(null);
     setQuoteSelection(null);
+    setDraftModelId(null);
     if (stickyTimerRef.current) {
       window.clearTimeout(stickyTimerRef.current);
       stickyTimerRef.current = null;
     }
   }, [session?.session_id]);
+
+  React.useEffect(() => {
+    if (!draftModelId) {
+      return;
+    }
+    if (draftModelId === persistedModelId) {
+      setDraftModelId(null);
+    }
+  }, [draftModelId, persistedModelId]);
+
+  const handleSelectModel = React.useCallback(
+    (modelId: string | null) => {
+      const nextModelId = (modelId || defaultModelId || "").trim();
+      if (!nextModelId || !defaultModelId) {
+        return;
+      }
+      setDraftModelId(nextModelId === persistedModelId ? null : nextModelId);
+    },
+    [defaultModelId, persistedModelId],
+  );
 
   const updateQuoteSelection = React.useCallback(() => {
     const container = conversationRef.current;
@@ -516,9 +564,11 @@ export function ChatPanel({
         return;
       }
 
+      const pendingModelOverride = draftModelId ?? undefined;
+
       if (isSessionActive) {
         // Session is running, add to pending queue
-        addPendingMessage(content, attachments);
+        addPendingMessage(content, attachments, pendingModelOverride);
       } else {
         // Optimistically update sidebar task status so it reflects the new turn immediately.
         touchTask(session.session_id, {
@@ -531,13 +581,14 @@ export function ChatPanel({
         if (session.status !== "running" && session.status !== "pending") {
           updateSession({ status: "pending" });
         }
-        await sendMessage(content, attachments);
+        await sendMessage(content, attachments, pendingModelOverride);
         // Ensure sidebar converges to backend truth (status/updated_at/title).
         await refreshTasks();
       }
     },
     [
       addPendingMessage,
+      draftModelId,
       hasActiveUserInput,
       isSessionActive,
       refreshTasks,
@@ -739,6 +790,17 @@ export function ChatPanel({
           action={
             session?.session_id || onToggleRightPanel ? (
               <div className="flex items-center gap-1">
+                {selectedModelId ? (
+                  <ModelSelector
+                    options={modelOptions}
+                    selectedModelId={selectedModelId}
+                    defaultModelId={defaultModelId}
+                    fallbackLabel={selectedModelLabel || selectedModelId}
+                    onChange={handleSelectModel}
+                    disabled={isLoadingModelCatalog}
+                    triggerClassName="h-8 max-w-[220px] px-2"
+                  />
+                ) : null}
                 {session?.session_id ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

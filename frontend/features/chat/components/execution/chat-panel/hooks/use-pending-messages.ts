@@ -3,18 +3,27 @@ import type { ExecutionSession, InputFile } from "@/features/chat/types";
 
 interface UsePendingMessagesOptions {
   session: ExecutionSession | null;
-  sendMessage: (content: string, attachments?: InputFile[]) => Promise<void>;
+  sendMessage: (
+    content: string,
+    attachments?: InputFile[],
+    model?: string | null,
+  ) => Promise<void>;
 }
 
 export interface PendingMessage {
   content: string;
   attachments?: InputFile[];
+  model?: string | null;
 }
 
 interface UsePendingMessagesReturn {
   pendingMessages: PendingMessage[];
   isSendingPending: boolean;
-  addPendingMessage: (content: string, attachments?: InputFile[]) => void;
+  addPendingMessage: (
+    content: string,
+    attachments?: InputFile[],
+    model?: string | null,
+  ) => void;
   sendPendingMessage: (index: number) => Promise<void>;
   modifyPendingMessage: (index: number) => PendingMessage;
   deletePendingMessage: (index: number) => void;
@@ -52,8 +61,8 @@ export function usePendingMessages({
 
   // Add message to pending queue
   const addPendingMessage = useCallback(
-    (content: string, attachments?: InputFile[]) => {
-      setPendingMessages((prev) => [...prev, { content, attachments }]);
+    (content: string, attachments?: InputFile[], model?: string | null) => {
+      setPendingMessages((prev) => [...prev, { content, attachments, model }]);
     },
     [],
   );
@@ -63,7 +72,7 @@ export function usePendingMessages({
     async (index: number) => {
       const msg = pendingMessages[index];
       setPendingMessages((prev) => prev.filter((_, i) => i !== index));
-      await sendMessage(msg.content, msg.attachments);
+      await sendMessage(msg.content, msg.attachments, msg.model);
     },
     [pendingMessages, sendMessage],
   );
@@ -99,7 +108,7 @@ export function usePendingMessages({
         setPendingMessages((prev) => prev.slice(1));
 
         try {
-          await sendMessage(msg.content, msg.attachments);
+          await sendMessage(msg.content, msg.attachments, msg.model);
         } catch (error) {
           console.error("Auto-send failed:", error);
         } finally {
