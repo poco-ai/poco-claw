@@ -1295,7 +1295,7 @@
     "providerApiKeyHint": "Оставьте поле пустым, чтобы сохранить текущий пользовательский ключ без изменений.",
     "providerApiKeyPlaceholder": "Введите API-ключ {{provider}}",
     "providerBaseUrlLabel": "Пользовательский Base URL",
-    "providerBaseUrlHint": "Включайте только если нужен нестандартный API-адрес.",
+    "providerBaseUrlHint": "Leave this blank to use the default API endpoint.",
     "providerBaseUrlRequired": "При включении пользовательского endpoint необходимо указать Base URL.",
     "providerSaveSuccess": "Настройки провайдера сохранены",
     "providerSaveError": "Не удалось сохранить настройки провайдера",
@@ -1601,7 +1601,17 @@
     },
     "gpt4Turbo": {
       "description": "Быстрый и эффективный"
-    }
+    },
+    "customBadge": "Custom",
+    "customModelAction": "Custom model",
+    "customModelTitle": "Use a custom model",
+    "customModelDescription": "Add any model name supported by the configured provider.",
+    "customModelPlaceholder": "e.g. gpt-5 or claude-sonnet-4-5",
+    "customModelHint": "Supported prefixes: claude-, gpt, o1/o3/o4, glm-, MiniMax-, deepseek-.",
+    "customModelRequired": "Enter a model name.",
+    "customModelUnsupported": "This model name does not match a supported provider.",
+    "customModelProviderUnavailable": "Configure the provider credentials before using this model.",
+    "customModelSaved": "Custom model added"
   },
   "creditsPopover": {
     "proPlan": "Pro план",

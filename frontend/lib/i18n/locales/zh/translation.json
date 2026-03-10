@@ -1399,7 +1399,7 @@
     "providerApiKeyHint": "留空表示保留当前自定义 Key，不会覆盖已有值。",
     "providerApiKeyPlaceholder": "请输入 {{provider}} API Key",
     "providerBaseUrlLabel": "自定义 Base URL",
-    "providerBaseUrlHint": "仅在需要覆盖默认接口地址时开启。",
+    "providerBaseUrlHint": "留空表示使用默认 API 地址。",
     "providerBaseUrlRequired": "启用自定义地址后必须填写 Base URL。",
     "providerSaveSuccess": "提供方配置已保存",
     "providerSaveError": "保存提供方配置失败",
@@ -1714,7 +1714,17 @@
     },
     "gpt4Turbo": {
       "description": "快速高效"
-    }
+    },
+    "customBadge": "自定义",
+    "customModelAction": "自定义模型",
+    "customModelTitle": "使用自定义模型",
+    "customModelDescription": "输入当前提供方实际支持的模型名称。",
+    "customModelPlaceholder": "例如 gpt-5 或 claude-sonnet-4-5",
+    "customModelHint": "支持的前缀：claude-、gpt、o1/o3/o4、glm-、MiniMax-、deepseek-。",
+    "customModelRequired": "请输入模型名称。",
+    "customModelUnsupported": "该模型名称无法匹配到受支持的提供方。",
+    "customModelProviderUnavailable": "请先配置对应提供方的凭据。",
+    "customModelSaved": "已添加自定义模型"
   },
   "creditsPopover": {
     "proPlan": "专业版",

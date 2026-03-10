@@ -1,11 +1,11 @@
 "use client";
 
+import * as React from "react";
 import { Loader2, RotateCcw, Save } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { useT } from "@/lib/i18n/client";
 import type { ApiProviderConfig } from "@/features/settings/types";
 
@@ -37,8 +37,15 @@ function ApiProviderSection({
 }: ApiProviderSectionProps) {
   const { t } = useT("translation");
   const statusLabel = getStatusLabel(t, config.credentialState);
-  const modelNames = config.models.map((item) => item.display_name).join(", ");
   const canClear = config.hasStoredUserKey || config.hasStoredUserBaseUrl;
+  const storedBaseUrl = React.useMemo(
+    () =>
+      config.baseUrlSource === "user" ? config.effectiveBaseUrl.trim() : "",
+    [config.baseUrlSource, config.effectiveBaseUrl],
+  );
+  const hasChanges =
+    config.keyInput.trim().length > 0 ||
+    config.baseUrlInput.trim() !== storedBaseUrl;
 
   return (
     <section className="space-y-4 rounded-3xl border border-border/60 bg-card/60 p-5 shadow-[var(--shadow-sm)]">
@@ -50,12 +57,36 @@ function ApiProviderSection({
             </h3>
             <Badge variant="outline">{statusLabel}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {t("settings.providerModels", { models: modelNames })}
-          </p>
         </div>
-        <div className="text-xs text-muted-foreground">
-          {config.apiKeyEnvKey}
+        <div className="flex items-center gap-1 self-start">
+          {canClear ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => void onClear()}
+              disabled={config.isSaving}
+              title={t("settings.providerClearCustom")}
+            >
+              <RotateCcw className="size-4" />
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={() => void onSave()}
+            disabled={config.isSaving || !hasChanges}
+            title={t("common.save")}
+          >
+            {config.isSaving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+          </Button>
         </div>
       </div>
 
@@ -77,49 +108,19 @@ function ApiProviderSection({
         </p>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-border/50 bg-background/70 p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">
-              {t("settings.providerBaseUrlLabel")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("settings.providerBaseUrlHint")}
-            </p>
-          </div>
-          <Switch
-            checked={config.useCustomBaseUrl}
-            onCheckedChange={(checked) => onChange({ useCustomBaseUrl: checked })}
-            disabled={config.isSaving}
-          />
-        </div>
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">
+          {t("settings.providerBaseUrlLabel")}
+        </p>
         <Input
           value={config.baseUrlInput}
           onChange={(event) => onChange({ baseUrlInput: event.target.value })}
           placeholder={config.defaultBaseUrl}
-          disabled={!config.useCustomBaseUrl || config.isSaving}
+          disabled={config.isSaving}
         />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button onClick={() => void onSave()} disabled={config.isSaving}>
-          {config.isSaving ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 size-4" />
-          )}
-          {config.isSaving ? t("common.saving") : t("common.save")}
-        </Button>
-        {canClear ? (
-          <Button
-            variant="outline"
-            onClick={() => void onClear()}
-            disabled={config.isSaving}
-          >
-            <RotateCcw className="mr-2 size-4" />
-            {t("settings.providerClearCustom")}
-          </Button>
-        ) : null}
+        <p className="text-xs text-muted-foreground">
+          {t("settings.providerBaseUrlHint")}
+        </p>
       </div>
     </section>
   );

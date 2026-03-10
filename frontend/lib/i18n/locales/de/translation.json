@@ -1299,7 +1299,7 @@
     "providerApiKeyHint": "Leer lassen, um den vorhandenen benutzerdefinierten Schlüssel unverändert zu behalten.",
     "providerApiKeyPlaceholder": "{{provider}}-API-Schlüssel eingeben",
     "providerBaseUrlLabel": "Benutzerdefinierte Base-URL",
-    "providerBaseUrlHint": "Nur aktivieren, wenn du einen anderen API-Endpunkt benötigst.",
+    "providerBaseUrlHint": "Leave this blank to use the default API endpoint.",
     "providerBaseUrlRequired": "Eine Base-URL ist erforderlich, wenn ein benutzerdefinierter Endpunkt aktiviert ist.",
     "providerSaveSuccess": "Anbietereinstellungen gespeichert",
     "providerSaveError": "Anbietereinstellungen konnten nicht gespeichert werden",
@@ -1605,7 +1605,17 @@
     },
     "gpt4Turbo": {
       "description": "Schnell und effizient"
-    }
+    },
+    "customBadge": "Custom",
+    "customModelAction": "Custom model",
+    "customModelTitle": "Use a custom model",
+    "customModelDescription": "Add any model name supported by the configured provider.",
+    "customModelPlaceholder": "e.g. gpt-5 or claude-sonnet-4-5",
+    "customModelHint": "Supported prefixes: claude-, gpt, o1/o3/o4, glm-, MiniMax-, deepseek-.",
+    "customModelRequired": "Enter a model name.",
+    "customModelUnsupported": "This model name does not match a supported provider.",
+    "customModelProviderUnavailable": "Configure the provider credentials before using this model.",
+    "customModelSaved": "Custom model added"
   },
   "creditsPopover": {
     "proPlan": "Pro-Plan",

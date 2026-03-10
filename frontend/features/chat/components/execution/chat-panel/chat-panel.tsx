@@ -799,6 +799,7 @@ export function ChatPanel({
                     onChange={handleSelectModel}
                     disabled={isLoadingModelCatalog}
                     triggerClassName="h-8 max-w-[220px] px-2"
+                    modelConfig={modelConfig}
                   />
                 ) : null}
                 {session?.session_id ? (

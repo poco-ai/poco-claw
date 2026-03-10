@@ -7,6 +7,7 @@ import { modelConfigService } from "@/features/home/api/model-config-api";
 import { envVarsService } from "@/features/capabilities/env-vars/api/env-vars-api";
 import type { EnvVar } from "@/features/capabilities/env-vars/types";
 import type { ModelConfigResponse, ModelProvider } from "@/features/chat/types";
+import { invalidateModelCatalog } from "@/features/chat/lib/model-catalog-state";
 import { useT } from "@/lib/i18n/client";
 import type { ApiProviderConfig } from "@/features/settings/types";
 
@@ -32,8 +33,8 @@ function buildProviderConfig(
     baseUrlSource: provider.base_url_source,
     models: provider.models,
     keyInput: "",
-    useCustomBaseUrl: provider.base_url_source === "user",
-    baseUrlInput: provider.effective_base_url,
+    baseUrlInput:
+      provider.base_url_source === "user" ? provider.effective_base_url : "",
     hasStoredUserKey,
     hasStoredUserBaseUrl,
     isSaving: savingProviderId === provider.provider_id,
@@ -43,13 +44,12 @@ function buildProviderConfig(
 export function useModelProviderSettings(options?: { enabled?: boolean }) {
   const enabled = options?.enabled ?? true;
   const { t } = useT("translation");
-  const [modelConfig, setModelConfig] = React.useState<ModelConfigResponse | null>(
-    null,
-  );
+  const [modelConfig, setModelConfig] =
+    React.useState<ModelConfigResponse | null>(null);
   const [envVars, setEnvVars] = React.useState<EnvVar[]>([]);
-  const [providerConfigs, setProviderConfigs] = React.useState<ApiProviderConfig[]>(
-    [],
-  );
+  const [providerConfigs, setProviderConfigs] = React.useState<
+    ApiProviderConfig[]
+  >([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [savingProviderId, setSavingProviderId] = React.useState<string | null>(
     null,
@@ -130,7 +130,9 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
 
   const saveProvider = React.useCallback(
     async (providerId: string) => {
-      const provider = providerConfigs.find((item) => item.providerId === providerId);
+      const provider = providerConfigs.find(
+        (item) => item.providerId === providerId,
+      );
       if (!provider) return;
 
       setSavingProviderId(providerId);
@@ -142,14 +144,14 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
         const baseUrlDescription = `${provider.displayName} base URL`;
 
         if (keyValue) {
-          await upsertUserEnvVar(provider.apiKeyEnvKey, keyValue, keyDescription);
+          await upsertUserEnvVar(
+            provider.apiKeyEnvKey,
+            keyValue,
+            keyDescription,
+          );
         }
 
-        if (provider.useCustomBaseUrl) {
-          if (!baseUrlValue) {
-            toast.error(t("settings.providerBaseUrlRequired"));
-            return;
-          }
+        if (baseUrlValue) {
           await upsertUserEnvVar(
             provider.baseUrlEnvKey,
             baseUrlValue,
@@ -170,6 +172,7 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
             buildProviderConfig(item, nextEnvVars, null),
           ),
         );
+        invalidateModelCatalog();
         toast.success(t("settings.providerSaveSuccess"));
       } catch (error) {
         console.error("[Settings] Failed to save provider settings:", error);
@@ -179,18 +182,14 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
         setProviderPatch(providerId, { isSaving: false });
       }
     },
-    [
-      deleteUserEnvVar,
-      providerConfigs,
-      setProviderPatch,
-      t,
-      upsertUserEnvVar,
-    ],
+    [deleteUserEnvVar, providerConfigs, setProviderPatch, t, upsertUserEnvVar],
   );
 
   const clearCustomProvider = React.useCallback(
     async (providerId: string) => {
-      const provider = providerConfigs.find((item) => item.providerId === providerId);
+      const provider = providerConfigs.find(
+        (item) => item.providerId === providerId,
+      );
       if (!provider) return;
 
       setSavingProviderId(providerId);
@@ -211,6 +210,7 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
             buildProviderConfig(item, nextEnvVars, null),
           ),
         );
+        invalidateModelCatalog();
         toast.success(t("settings.providerClearSuccess"));
       } catch (error) {
         console.error("[Settings] Failed to clear provider settings:", error);

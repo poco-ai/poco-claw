@@ -16,7 +16,7 @@ from app.repositories.user_plugin_install_repository import UserPluginInstallRep
 from app.repositories.user_skill_install_repository import UserSkillInstallRepository
 from app.schemas.session import TaskConfig
 from app.schemas.task import TaskEnqueueRequest, TaskEnqueueResponse
-from app.services.model_config_service import get_allowed_model_ids
+from app.services.model_config_service import get_allowed_model_ids, infer_provider_id
 
 
 class TaskService:
@@ -63,7 +63,7 @@ class TaskService:
             return
 
         allowed = set(get_allowed_model_ids(settings))
-        if value not in allowed:
+        if value not in allowed and infer_provider_id(value) is None:
             raise AppException(
                 error_code=ErrorCode.BAD_REQUEST,
                 message=f"Invalid model: {value}",

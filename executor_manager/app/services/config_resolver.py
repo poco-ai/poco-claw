@@ -313,7 +313,7 @@ class ConfigResolver:
         lowered = value.lower()
         if lowered.startswith("claude-"):
             return "anthropic"
-        if lowered.startswith(("gpt-", "o1", "o3", "o4")):
+        if lowered.startswith(("gpt", "o1", "o3", "o4")):
             return "openai"
         if lowered.startswith("glm-") or value.startswith("GLM-"):
             return "glm"

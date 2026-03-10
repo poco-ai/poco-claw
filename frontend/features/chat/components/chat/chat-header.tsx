@@ -8,6 +8,7 @@ import { UsageTooltip } from "./usage-tooltip";
 import type { UsageStats } from "@/types";
 import { PageHeaderShell } from "@/components/shared/page-header-shell";
 import type { ModelCatalogOption } from "@/features/chat/lib/model-catalog";
+import type { ModelConfigResponse } from "@/features/chat/types";
 
 // Default usage stats for now
 const DEFAULT_USAGE_STATS: UsageStats = {
@@ -25,6 +26,7 @@ interface ChatHeaderProps {
   defaultModelId?: string | null;
   onModelChange: (modelId: string | null) => void;
   title?: string;
+  modelConfig?: ModelConfigResponse | null;
 }
 
 export function ChatHeader({
@@ -33,6 +35,7 @@ export function ChatHeader({
   defaultModelId,
   onModelChange,
   title,
+  modelConfig,
 }: ChatHeaderProps) {
   const usageStats = React.useMemo(() => DEFAULT_USAGE_STATS, []);
 
@@ -46,6 +49,7 @@ export function ChatHeader({
             defaultModelId={defaultModelId}
             fallbackLabel={selectedModelId || undefined}
             onChange={onModelChange}
+            modelConfig={modelConfig}
           />
           {title ? (
             <>

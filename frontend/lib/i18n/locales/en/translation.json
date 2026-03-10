@@ -1399,7 +1399,7 @@
     "providerApiKeyHint": "Leave this blank to keep the existing custom key unchanged.",
     "providerApiKeyPlaceholder": "Enter your {{provider}} API key",
     "providerBaseUrlLabel": "Custom Base URL",
-    "providerBaseUrlHint": "Enable this only when you need a non-default API endpoint.",
+    "providerBaseUrlHint": "Leave this blank to use the default API endpoint.",
     "providerBaseUrlRequired": "Base URL is required when custom endpoint is enabled.",
     "providerSaveSuccess": "Provider settings saved",
     "providerSaveError": "Failed to save provider settings",
@@ -1714,7 +1714,17 @@
     },
     "gpt4Turbo": {
       "description": "Fast and efficient"
-    }
+    },
+    "customBadge": "Custom",
+    "customModelAction": "Custom model",
+    "customModelTitle": "Use a custom model",
+    "customModelDescription": "Add any model name supported by the configured provider.",
+    "customModelPlaceholder": "e.g. gpt-5 or claude-sonnet-4-5",
+    "customModelHint": "Supported prefixes: claude-, gpt, o1/o3/o4, glm-, MiniMax-, deepseek-.",
+    "customModelRequired": "Enter a model name.",
+    "customModelUnsupported": "This model name does not match a supported provider.",
+    "customModelProviderUnavailable": "Configure the provider credentials before using this model.",
+    "customModelSaved": "Custom model added"
   },
   "creditsPopover": {
     "proPlan": "Pro Plan",

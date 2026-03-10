@@ -29,7 +29,6 @@ export type ApiProviderConfig = {
   baseUrlSource: BaseUrlSource;
   models: ModelProvider["models"];
   keyInput: string;
-  useCustomBaseUrl: boolean;
   baseUrlInput: string;
   hasStoredUserKey: boolean;
   hasStoredUserBaseUrl: boolean;

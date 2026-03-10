@@ -1295,7 +1295,7 @@
     "providerApiKeyHint": "既存のカスタムキーを保持する場合は空欄のままにしてください。",
     "providerApiKeyPlaceholder": "{{provider}} APIキーを入力",
     "providerBaseUrlLabel": "カスタム Base URL",
-    "providerBaseUrlHint": "デフォルト以外の API エンドポイントが必要な場合のみ有効にしてください。",
+    "providerBaseUrlHint": "Leave this blank to use the default API endpoint.",
     "providerBaseUrlRequired": "カスタムエンドポイントを有効にする場合は Base URL が必要です。",
     "providerSaveSuccess": "プロバイダー設定を保存しました",
     "providerSaveError": "プロバイダー設定の保存に失敗しました",
@@ -1601,7 +1601,17 @@
     },
     "gpt4Turbo": {
       "description": "高速で効率的"
-    }
+    },
+    "customBadge": "Custom",
+    "customModelAction": "Custom model",
+    "customModelTitle": "Use a custom model",
+    "customModelDescription": "Add any model name supported by the configured provider.",
+    "customModelPlaceholder": "e.g. gpt-5 or claude-sonnet-4-5",
+    "customModelHint": "Supported prefixes: claude-, gpt, o1/o3/o4, glm-, MiniMax-, deepseek-.",
+    "customModelRequired": "Enter a model name.",
+    "customModelUnsupported": "This model name does not match a supported provider.",
+    "customModelProviderUnavailable": "Configure the provider credentials before using this model.",
+    "customModelSaved": "Custom model added"
   },
   "creditsPopover": {
     "proPlan": "Proプラン",

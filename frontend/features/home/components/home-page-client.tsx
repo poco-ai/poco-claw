@@ -13,15 +13,13 @@ import {
   submitTask,
   useAutosizeTextarea,
 } from "@/features/task-composer";
-import type { ModelConfigResponse } from "@/features/chat/types";
 
 import { HomeHeader } from "./home-header";
 import { ConnectorsBar } from "@/features/connectors";
 
 import { useAppShell } from "@/components/shell/app-shell-context";
 import { toast } from "sonner";
-import { modelConfigService } from "@/features/home/api/model-config-api";
-import { buildModelCatalogOptions } from "@/features/chat/lib/model-catalog";
+import { useModelCatalog } from "@/features/chat/hooks/use-model-catalog";
 
 const MODEL_STORAGE_KEY = "poco_selected_model";
 
@@ -36,36 +34,19 @@ export function HomePageClient() {
   const [mode, setMode] = React.useState<ComposerMode>("task");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  const [modelConfig, setModelConfig] =
-    React.useState<ModelConfigResponse | null>(null);
   const [selectedModel, setSelectedModel] = React.useState<string | null>(null);
+  const { modelConfig, modelOptions } = useModelCatalog();
   const selectableModelIds = React.useMemo(
     () =>
       new Set(
-        buildModelCatalogOptions(modelConfig)
+        modelOptions
           .filter((option) => option.isAvailable && !option.isDefault)
           .map((option) => option.modelId),
       ),
-    [modelConfig],
+    [modelOptions],
   );
 
   useAutosizeTextarea(textareaRef, inputValue);
-
-  React.useEffect(() => {
-    let active = true;
-    modelConfigService
-      .get()
-      .then((cfg) => {
-        if (!active) return;
-        setModelConfig(cfg);
-      })
-      .catch((error) => {
-        console.error("[Home] Failed to load model config:", error);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   React.useEffect(() => {
     const defaultModel = (modelConfig?.default_model || "").trim();
@@ -235,6 +216,7 @@ export function HomePageClient() {
       <HomeHeader
         onOpenSettings={openSettings}
         modelConfig={modelConfig}
+        modelOptions={modelOptions}
         selectedModel={selectedModel}
         onSelectModel={handleSelectModel}
       />
