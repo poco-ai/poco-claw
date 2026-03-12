@@ -112,8 +112,16 @@ class CallbackService:
         if db_run is None:
             return True
 
-        latest_run = RunRepository.get_latest_by_session(db, db_session.id)
-        if latest_run is None or latest_run.id == db_run.id:
+        export_status = (callback.workspace_export_status or "").strip().lower()
+        latest_terminal_run = RunRepository.get_latest_terminal_by_session(
+            db, db_session.id
+        )
+        if latest_terminal_run is None or latest_terminal_run.id == db_run.id:
+            return True
+        if (
+            export_status == "ready"
+            and db_session.workspace_export_status != "ready"
+        ):
             return True
 
         logger.info(
@@ -121,11 +129,47 @@ class CallbackService:
             extra={
                 "session_id": str(db_session.id),
                 "run_id": str(db_run.id),
-                "latest_run_id": str(latest_run.id),
+                "latest_terminal_run_id": str(latest_terminal_run.id),
                 "workspace_export_status": callback.workspace_export_status,
             },
         )
         return False
+
+    def _should_preserve_existing_ready_workspace(
+        self,
+        db_session: AgentSession,
+        callback: AgentCallbackRequest,
+    ) -> bool:
+        has_existing_ready_workspace = (
+            (db_session.workspace_export_status or "").strip().lower()
+            == "ready"
+            and any(
+                value
+                for value in (
+                    db_session.workspace_files_prefix,
+                    db_session.workspace_manifest_key,
+                    db_session.workspace_archive_key,
+                )
+            )
+        )
+        if not has_existing_ready_workspace:
+            return False
+
+        incoming_export_status = (
+            (callback.workspace_export_status or "").strip().lower()
+        )
+        incoming_workspace_artifacts = any(
+            value is not None
+            for value in (
+                callback.workspace_files_prefix,
+                callback.workspace_manifest_key,
+                callback.workspace_archive_key,
+            )
+        )
+        return (
+            incoming_export_status not in {"", "ready"}
+            and not incoming_workspace_artifacts
+        )
 
     def _extract_sdk_session_id_from_message(
         self, message: dict[str, Any]
@@ -361,7 +405,20 @@ class CallbackService:
             db_run,
             callback,
         )
-        if should_apply_workspace_export:
+        preserve_existing_ready_workspace = (
+            should_apply_workspace_export
+            and self._should_preserve_existing_ready_workspace(db_session, callback)
+        )
+        if preserve_existing_ready_workspace:
+            logger.info(
+                "preserve_existing_ready_workspace_export",
+                extra={
+                    "session_id": str(db_session.id),
+                    "run_id": str(db_run.id) if db_run is not None else None,
+                    "workspace_export_status": callback.workspace_export_status,
+                },
+            )
+        elif should_apply_workspace_export:
             if callback.workspace_files_prefix is not None:
                 db_session.workspace_files_prefix = callback.workspace_files_prefix
             if callback.workspace_manifest_key is not None:

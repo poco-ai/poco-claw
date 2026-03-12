@@ -196,7 +196,8 @@ class SessionQueueService:
         scheduled_at: datetime | None = None,
     ) -> tuple[AgentMessage, AgentRun]:
         normalized_prompt = self._normalize_prompt(prompt)
-        self.clear_execution_state(db_session)
+        if schedule_mode == "immediate":
+            self.clear_execution_state(db_session)
         db_session.config_snapshot = self.extract_session_config(run_config_snapshot)
 
         user_message_content = {

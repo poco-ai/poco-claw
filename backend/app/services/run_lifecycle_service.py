@@ -48,6 +48,7 @@ class RunLifecycleService:
 
         now = datetime.now(timezone.utc)
         if db_run.status in {"queued", "claimed"}:
+            self._session_queue_service.clear_execution_state(db_session)
             db_run.status = "running"
         if db_run.started_at is None:
             db_run.started_at = now

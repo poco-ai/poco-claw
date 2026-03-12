@@ -13,6 +13,7 @@ class RunRepository:
 
     UNFINISHED_STATUSES = ("queued", "claimed", "running")
     BLOCKING_STATUSES = ("claimed", "running")
+    TERMINAL_STATUSES = ("completed", "failed", "canceled")
 
     @staticmethod
     def _blocking_priority():
@@ -76,6 +77,18 @@ class RunRepository:
                 AgentRun.scheduled_at.asc(),
                 AgentRun.created_at.asc(),
             )
+            .first()
+        )
+
+    @staticmethod
+    def get_latest_terminal_by_session(
+        session_db: Session, session_id: uuid.UUID
+    ) -> AgentRun | None:
+        return (
+            session_db.query(AgentRun)
+            .filter(AgentRun.session_id == session_id)
+            .filter(AgentRun.status.in_(RunRepository.TERMINAL_STATUSES))
+            .order_by(AgentRun.finished_at.desc(), AgentRun.created_at.desc())
             .first()
         )
 
