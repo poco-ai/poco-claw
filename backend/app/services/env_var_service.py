@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, cast
+from typing import Literal
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
