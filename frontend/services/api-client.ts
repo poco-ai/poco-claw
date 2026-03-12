@@ -67,6 +67,7 @@ export const API_ENDPOINTS = {
 
   // Search
   search: "/search",
+  capabilityRecommendations: "/capability-recommendations",
 
   // Models
   models: "/models",
