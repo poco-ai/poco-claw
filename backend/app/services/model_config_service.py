@@ -118,8 +118,7 @@ def humanize_model_name(model_id: str) -> str:
 
     parts = value.replace("_", "-").split("-")
     return " ".join(
-        part.upper() if part.isalpha() and len(part) <= 4 else part
-        for part in parts
+        part.upper() if part.isalpha() and len(part) <= 4 else part for part in parts
     )
 
 
@@ -206,7 +205,9 @@ class ModelConfigService:
 
         def push_model(model_id: str | None, provider_id: str | None = None) -> None:
             clean = (model_id or "").strip()
-            resolved_provider_id = (provider_id or infer_provider_id(clean) or "").strip()
+            resolved_provider_id = (
+                provider_id or infer_provider_id(clean) or ""
+            ).strip()
             if (
                 not clean
                 or not resolved_provider_id
@@ -264,7 +265,9 @@ class ModelConfigService:
             if setting:
                 ModelProviderSettingRepository.delete(db, setting)
                 db.commit()
-            user_env_values, system_env_values = self._load_provider_env_values(db, user_id)
+            user_env_values, system_env_values = self._load_provider_env_values(
+                db, user_id
+            )
             return self._build_provider_response(
                 spec=spec,
                 user_env_values=user_env_values,

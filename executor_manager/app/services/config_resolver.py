@@ -289,7 +289,9 @@ class ConfigResolver:
         selected_model = str(
             config_snapshot.get("model") or self.settings.default_model or ""
         ).strip()
-        explicit_provider_id = str(config_snapshot.get("model_provider_id") or "").strip()
+        explicit_provider_id = str(
+            config_snapshot.get("model_provider_id") or ""
+        ).strip()
         inferred_provider_id = self._infer_provider_id(selected_model)
         provider_id = explicit_provider_id or inferred_provider_id
         if not provider_id:
@@ -302,10 +304,9 @@ class ConfigResolver:
         if not spec:
             return {}
 
-        api_key = (
-            self._get_first_env_value(env_map, spec["source_api_key_env_keys"])
-            or self._get_first_settings_value(spec["source_api_key_settings_fields"])
-        )
+        api_key = self._get_first_env_value(
+            env_map, spec["source_api_key_env_keys"]
+        ) or self._get_first_settings_value(spec["source_api_key_settings_fields"])
         if not api_key:
             raise AppException(
                 error_code=ErrorCode.ENV_VAR_NOT_FOUND,
