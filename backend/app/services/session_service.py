@@ -4,7 +4,6 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from typing import TypeVar
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.errors.error_codes import ErrorCode
@@ -40,9 +39,9 @@ class SessionService:
 
     def _ensure_no_active_queue_items(self, db: Session, session_id: uuid.UUID) -> None:
         if SessionQueueItemRepository.has_active_items(db, session_id):
-            raise HTTPException(
-                status_code=409,
-                detail="Queued queries must be cleared before modifying this session",
+            raise AppException(
+                error_code=ErrorCode.SESSION_HAS_ACTIVE_QUEUE_ITEMS,
+                message="Queued queries must be cleared before modifying this session",
             )
 
     def create_session(
