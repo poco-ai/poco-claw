@@ -197,6 +197,7 @@ export function ChatPanel({
     beginOptimisticEditMessage,
     commitOptimisticHistoryMutation,
     rollbackOptimisticHistoryMutation,
+    reloadMessagesSnapshot,
     runUsageByUserMessageId,
   } = useChatMessages({ session });
 
@@ -602,6 +603,7 @@ export function ChatPanel({
             model: selectedModelSelection.modelId ?? undefined,
             model_provider_id: selectedModelSelection.providerId ?? undefined,
           });
+          await reloadMessagesSnapshot();
           commitOptimisticHistoryMutation(mutationToken);
           void refreshTasks();
         } catch (error) {
@@ -619,6 +621,7 @@ export function ChatPanel({
       beginOptimisticEditMessage,
       commitOptimisticHistoryMutation,
       refreshTasks,
+      reloadMessagesSnapshot,
       rollbackOptimisticHistoryMutation,
       selectedModelSelection,
       session?.session_id,
@@ -888,6 +891,7 @@ export function ChatPanel({
             model: selectedModelSelection.modelId ?? undefined,
             model_provider_id: selectedModelSelection.providerId ?? undefined,
           });
+          await reloadMessagesSnapshot();
           commitOptimisticHistoryMutation(mutationToken);
           void refreshTasks();
         } catch (error) {
@@ -903,6 +907,7 @@ export function ChatPanel({
       beginOptimisticRegenerate,
       commitOptimisticHistoryMutation,
       refreshTasks,
+      reloadMessagesSnapshot,
       rollbackOptimisticHistoryMutation,
       selectedModelSelection,
       session?.session_id,
