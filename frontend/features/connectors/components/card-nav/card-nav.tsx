@@ -22,7 +22,6 @@ import { useT } from "@/lib/i18n/client";
 import {
   getStartupPreloadValue,
   hasStartupPreloadValue,
-  invalidateStartupPreloadValues,
 } from "@/lib/startup-preload";
 import { toast } from "sonner";
 import { SkeletonText } from "@/components/ui/skeleton-shimmer";
@@ -198,9 +197,9 @@ export function CardNav({
     };
   });
 
-  // Toggle MCP enabled state
+  // Toggle MCP enabled state (local only, no API call)
   const toggleMcpEnabled = useCallback(
-    async (installId: number, currentEnabled: boolean) => {
+    (installId: number, currentEnabled: boolean) => {
       // Check if enabling would exceed the limit
       const currentEnabledCount = mcpInstalls.filter((i) => i.enabled).length;
       if (!currentEnabled && currentEnabledCount >= MCP_LIMIT) {
@@ -208,39 +207,33 @@ export function CardNav({
         return;
       }
 
-      try {
-        await mcpService.updateInstall(installId, { enabled: !currentEnabled });
-        setMcpInstalls((prev) =>
-          prev.map((install) =>
-            install.id === installId
-              ? { ...install, enabled: !currentEnabled }
-              : install,
-          ),
-        );
-        invalidateStartupPreloadValues(["mcpInstalls"]);
-        if (!currentEnabled) {
-          playInstallSound();
-        }
+      setMcpInstalls((prev) =>
+        prev.map((install) =>
+          install.id === installId
+            ? { ...install, enabled: !currentEnabled }
+            : install,
+        ),
+      );
+      if (!currentEnabled) {
+        playInstallSound();
+      }
 
-        // Check if we've exceeded the limit after enabling
-        const newEnabledCount = !currentEnabled
-          ? currentEnabledCount + 1
-          : currentEnabledCount;
-        if (newEnabledCount > MCP_LIMIT) {
-          toast.warning(
-            t("hero.warnings.tooManyMcps", { count: newEnabledCount }),
-          );
-        }
-      } catch (error) {
-        console.error("[CardNav] Failed to toggle MCP:", error);
+      // Check if we've exceeded the limit after enabling
+      const newEnabledCount = !currentEnabled
+        ? currentEnabledCount + 1
+        : currentEnabledCount;
+      if (newEnabledCount > MCP_LIMIT) {
+        toast.warning(
+          t("hero.warnings.tooManyMcps", { count: newEnabledCount }),
+        );
       }
     },
     [mcpInstalls, t],
   );
 
-  // Toggle Skill enabled state
+  // Toggle Skill enabled state (local only, no API call)
   const toggleSkillEnabled = useCallback(
-    async (installId: number, currentEnabled: boolean) => {
+    (installId: number, currentEnabled: boolean) => {
       // Check if enabling would exceed the limit
       const currentEnabledCount = skillInstalls.filter((i) => i.enabled).length;
       if (!currentEnabled && currentEnabledCount >= SKILL_LIMIT) {
@@ -248,41 +241,33 @@ export function CardNav({
         return;
       }
 
-      try {
-        await skillsService.updateInstall(installId, {
-          enabled: !currentEnabled,
-        });
-        setSkillInstalls((prev) =>
-          prev.map((install) =>
-            install.id === installId
-              ? { ...install, enabled: !currentEnabled }
-              : install,
-          ),
-        );
-        invalidateStartupPreloadValues(["skillInstalls"]);
-        if (!currentEnabled) {
-          playInstallSound();
-        }
+      setSkillInstalls((prev) =>
+        prev.map((install) =>
+          install.id === installId
+            ? { ...install, enabled: !currentEnabled }
+            : install,
+        ),
+      );
+      if (!currentEnabled) {
+        playInstallSound();
+      }
 
-        // Check if we've exceeded the limit after enabling
-        const newEnabledCount = !currentEnabled
-          ? currentEnabledCount + 1
-          : currentEnabledCount;
-        if (newEnabledCount > SKILL_LIMIT) {
-          toast.warning(
-            t("hero.warnings.tooManySkills", { count: newEnabledCount }),
-          );
-        }
-      } catch (error) {
-        console.error("[CardNav] Failed to toggle Skill:", error);
+      // Check if we've exceeded the limit after enabling
+      const newEnabledCount = !currentEnabled
+        ? currentEnabledCount + 1
+        : currentEnabledCount;
+      if (newEnabledCount > SKILL_LIMIT) {
+        toast.warning(
+          t("hero.warnings.tooManySkills", { count: newEnabledCount }),
+        );
       }
     },
     [skillInstalls, t],
   );
 
-  // Toggle Plugin enabled state
+  // Toggle Plugin enabled state (local only, no API call)
   const togglePluginEnabled = useCallback(
-    async (installId: number, currentEnabled: boolean) => {
+    (installId: number, currentEnabled: boolean) => {
       const shouldEnable = !currentEnabled;
       const otherEnabledInstalls = pluginInstalls.filter(
         (install) => install.enabled && install.id !== installId,
@@ -298,60 +283,30 @@ export function CardNav({
         t("cardNav.fallbackPreset", {
           id: targetInstall?.plugin_id ?? installId,
         });
-      const previousInstalls = pluginInstalls;
-      try {
-        if (shouldEnable && otherEnabledInstalls.length > 0) {
-          await pluginsService.bulkUpdateInstalls({
-            enabled: false,
-            install_ids: otherEnabledInstalls.map((install) => install.id),
-          });
-        }
 
-        const updated = await pluginsService.updateInstall(installId, {
-          enabled: shouldEnable,
-        });
-
-        setPluginInstalls((prev) =>
-          prev.map((install) => {
-            if (install.id === installId) {
-              return updated;
-            }
-            if (
-              shouldEnable &&
-              otherEnabledInstalls.some((other) => other.id === install.id)
-            ) {
-              return { ...install, enabled: false };
-            }
-            return install;
-          }),
-        );
-        invalidateStartupPreloadValues(["pluginInstalls"]);
-        if (shouldEnable) {
-          playInstallSound();
-          const extraNote =
-            otherEnabledInstalls.length > 0
-              ? ` ${t("library.pluginsManager.toasts.exclusiveEnabled")}`
-              : "";
-          toast.success(
-            `${targetName} ${t("library.pluginsManager.toasts.enabled")}${extraNote}`,
-          );
-        }
-      } catch (error) {
-        console.error("[CardNav] Failed to toggle Plugin:", error);
-        if (shouldEnable && otherEnabledInstalls.length > 0) {
-          try {
-            await pluginsService.bulkUpdateInstalls({
-              enabled: true,
-              install_ids: otherEnabledInstalls.map((install) => install.id),
-            });
-          } catch (restoreError) {
-            console.error(
-              "[CardNav] Failed to restore preset toggles:",
-              restoreError,
-            );
+      setPluginInstalls((prev) =>
+        prev.map((install) => {
+          if (install.id === installId) {
+            return { ...install, enabled: shouldEnable };
           }
-        }
-        setPluginInstalls(previousInstalls);
+          if (
+            shouldEnable &&
+            otherEnabledInstalls.some((other) => other.id === install.id)
+          ) {
+            return { ...install, enabled: false };
+          }
+          return install;
+        }),
+      );
+      if (shouldEnable) {
+        playInstallSound();
+        const extraNote =
+          otherEnabledInstalls.length > 0
+            ? ` ${t("library.pluginsManager.toasts.exclusiveEnabled")}`
+            : "";
+        toast.success(
+          `${targetName} ${t("library.pluginsManager.toasts.enabled")}${extraNote}`,
+        );
       }
     },
     [pluginInstalls, plugins, t],
