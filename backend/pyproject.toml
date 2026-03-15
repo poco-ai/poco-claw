@@ -23,8 +23,10 @@ dependencies = [
 ]
 
 [tool.pyrefly]
+project-excludes = ["assets/**"]
 project-includes = [
-    "**/*.py*",
+    "**/*.py",
+    "**/*.pyi",
     "**/*.ipynb",
 ]
 

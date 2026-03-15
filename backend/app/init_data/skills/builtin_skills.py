@@ -116,7 +116,7 @@ class SkillBootstrapService:
 
     @classmethod
     def _build_bundle(cls, definition: BuiltinSkillDefinition) -> BuiltinSkillBundle:
-        entry = {
+        entry: dict[str, object] = {
             "s3_key": f"{definition.s3_prefix}/",
             "is_prefix": True,
         }
@@ -144,7 +144,7 @@ class SkillBootstrapService:
         frontmatter = parse_yaml_front_matter(skill_markdown)
         description = cls._normalize_description(frontmatter.get("description")) or definition.description
         version = cls._compute_asset_hash(definition.asset_dir)
-        source = {
+        source: dict[str, object] = {
             "kind": "system",
             "version": version,
             "asset_dir": f"skills/{definition.asset_dir_name}",
@@ -171,8 +171,13 @@ class SkillBootstrapService:
         key = f"{bundle.definition.s3_prefix}/SKILL.md"
         version = bundle.source.get("version")
         existing_version = None
-        if isinstance(getattr(existing, "source", None), dict):
-            raw_version = existing.source.get("version")
+        existing_source = (
+            existing.source
+            if existing is not None and isinstance(existing.source, dict)
+            else None
+        )
+        if existing_source is not None:
+            raw_version = existing_source.get("version")
             if isinstance(raw_version, str):
                 existing_version = raw_version
 
