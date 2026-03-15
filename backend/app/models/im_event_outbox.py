@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, Index, Integer, JSON, String, Text, text
+from sqlalchemy import BigInteger, DateTime, Index, Integer, JSON, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base, TimestampMixin
@@ -34,7 +34,7 @@ class ImEventOutbox(Base, TimestampMixin):
     user_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     session_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)
     run_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)
-    message_id: Mapped[int | None] = mapped_column(nullable=True)
+    message_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     user_input_request_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(

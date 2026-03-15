@@ -1,5 +1,12 @@
 from app.core.database import Base, TimestampMixin
 
+from app.im.models import (
+    ActiveSession,
+    Channel,
+    ChannelDelivery,
+    DedupEvent,
+    WatchedSession,
+)
 from app.models.agent_message import AgentMessage
 from app.models.agent_run import AgentRun
 from app.models.agent_scheduled_task import AgentScheduledTask
@@ -29,11 +36,15 @@ from app.models.user_skill_install import UserSkillInstall
 __all__ = [
     "Base",
     "TimestampMixin",
+    "ActiveSession",
     "AgentMessage",
     "AgentRun",
     "AgentScheduledTask",
     "AgentSession",
     "AgentSessionQueueItem",
+    "Channel",
+    "ChannelDelivery",
+    "DedupEvent",
     "UserClaudeMdSetting",
     "UserEnvVar",
     "ImEventOutbox",
@@ -54,4 +65,5 @@ __all__ = [
     "UserPluginInstall",
     "UserInputRequest",
     "UserSkillInstall",
+    "WatchedSession",
 ]

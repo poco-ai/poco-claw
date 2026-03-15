@@ -50,7 +50,7 @@ pnpm lint
 pnpm build
 ```
 
-如果修改了 Python 服务（`backend`/`executor`/`executor_manager`/`im`），请先安装依赖并验证服务可启动：
+如果修改了 Python 服务（`backend`/`executor`/`executor_manager`），请先安装依赖并验证服务可启动：
 
 ```bash
 cd <service>
@@ -73,7 +73,7 @@ uv run -m alembic upgrade head
 
 - 变更背景和目标
 - 主要改动点
-- 影响范围（frontend/backend/executor/executor_manager/im）
+- 影响范围（frontend/backend/executor/executor_manager）
 - 本地验证命令与结果
 - 如涉及 UI：提供截图或录屏
 - 如涉及数据库：提供 migration 和回滚说明

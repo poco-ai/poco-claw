@@ -8,7 +8,7 @@ license = { text = "MIT" }
 dependencies = []
 
 [tool.ruff]
-src = ["backend", "executor", "executor_manager", "im"]
+src = ["backend", "executor", "executor_manager"]
 extend-exclude = ["backend/assets"]
 
 [[tool.uv.index]]
@@ -21,13 +21,11 @@ exclude = ["backend/assets"]
 project-includes = [
     "backend",
     "executor",
-    "executor_manager",
-    "im"
+    "executor_manager"
 ]
 
 search_path = [
     "backend",
     "executor",
-    "executor_manager",
-    "im"
+    "executor_manager"
 ]

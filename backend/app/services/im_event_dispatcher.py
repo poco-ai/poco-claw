@@ -4,14 +4,10 @@ import asyncio
 import logging
 from dataclasses import dataclass
 
-import httpx
-
 from app.core.database import SessionLocal
-from app.core.observability.request_context import (
-    generate_request_id,
-    generate_trace_id,
-)
 from app.core.settings import get_settings
+from app.im.schemas.backend_event import BackendEvent
+from app.im.services.backend_event_service import BackendEventService
 from app.repositories.im_event_outbox_repository import ImEventOutboxRepository
 
 logger = logging.getLogger(__name__)
@@ -28,37 +24,26 @@ class ClaimedEvent:
 class ImEventDispatcher:
     def __init__(self) -> None:
         self.settings = get_settings()
-        self._client: httpx.AsyncClient | None = None
+        self._backend_event_service = BackendEventService()
 
     @property
     def enabled(self) -> bool:
-        url = (self.settings.im_event_callback_url or "").strip()
-        token = (self.settings.im_event_token or "").strip()
-        return bool(self.settings.im_event_dispatch_enabled and url and token)
+        return bool(self.settings.im_event_dispatch_enabled)
 
     async def run_forever(self) -> None:
         if not self.enabled:
             logger.info("im_event_dispatcher_disabled")
             return
 
-        self._client = httpx.AsyncClient(
-            timeout=httpx.Timeout(connect=5.0, read=15.0, write=15.0, pool=5.0),
-            trust_env=False,
-        )
         interval = max(0.2, float(self.settings.im_event_dispatch_interval_seconds))
-        try:
-            while True:
-                try:
-                    await self._dispatch_once()
-                except asyncio.CancelledError:
-                    raise
-                except Exception:
-                    logger.exception("im_event_dispatcher_iteration_failed")
-                await asyncio.sleep(interval)
-        finally:
-            if self._client is not None:
-                await self._client.aclose()
-                self._client = None
+        while True:
+            try:
+                await self._dispatch_once()
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logger.exception("im_event_dispatcher_iteration_failed")
+            await asyncio.sleep(interval)
 
     async def _dispatch_once(self) -> None:
         batch_size = max(1, int(self.settings.im_event_dispatch_batch_size))
@@ -97,21 +82,12 @@ class ImEventDispatcher:
                 await asyncio.to_thread(self._mark_delivered, event.id)
 
     async def _deliver(self, event: ClaimedEvent) -> None:
-        if self._client is None:
-            raise RuntimeError("IM event dispatcher client is not initialized")
-
-        callback_url = (self.settings.im_event_callback_url or "").strip()
-        token = (self.settings.im_event_token or "").strip()
-        response = await self._client.post(
-            callback_url,
-            json=event.payload,
-            headers={
-                "X-IM-Event-Token": token,
-                "X-Request-ID": generate_request_id(),
-                "X-Trace-ID": generate_trace_id(),
-            },
-        )
-        response.raise_for_status()
+        parsed = BackendEvent.model_validate(event.payload)
+        db = SessionLocal()
+        try:
+            await self._backend_event_service.process_event(db, event=parsed)
+        finally:
+            db.close()
 
     @staticmethod
     def _claim_due_batch(limit: int, lease_seconds: int) -> list[ClaimedEvent]:
