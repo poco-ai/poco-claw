@@ -29,6 +29,19 @@ Then after the skill is done (but again, the order is flexible), you can also ru
 
 Cool? Cool.
 
+## Submitting a finished skill for review
+
+Once the skill files are ready in the workspace and the user wants to keep them, submit the
+skill for review with:
+
+```bash
+python ~/.config/skills/skill-creator/scripts/upload_skill.py --folder .config/skills/<skill-name>
+```
+
+Use `--name <override-name>` if the final installed skill name should differ from the folder
+name. The script submits a pending review request; after it succeeds, tell the user to confirm
+or cancel the skill in the UI review card.
+
 ## Communicating with the user
 
 The skill creator is liable to be used by people across a wide range of familiarity with coding jargon. If you haven't heard (and how could you, it's only very recently that it started), there's a trend now where the power of Claude is inspiring plumbers to open up their terminals, parents and grandparents to google "how to install npm". On the other hand, the bulk of users are probably fairly computer-literate.

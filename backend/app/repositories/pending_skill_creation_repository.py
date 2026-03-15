@@ -57,3 +57,16 @@ class PendingSkillCreationRepository:
             )
             .first()
         )
+
+    @staticmethod
+    def find_by_session_and_path(
+        session_db: Session,
+        *,
+        session_id: uuid.UUID,
+        skill_relative_path: str,
+    ) -> PendingSkillCreation | None:
+        return PendingSkillCreationRepository.get_by_session_and_skill_relative_path(
+            session_db,
+            session_id=session_id,
+            skill_relative_path=skill_relative_path,
+        )

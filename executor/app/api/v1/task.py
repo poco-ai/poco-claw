@@ -1,4 +1,5 @@
 import logging
+import json
 
 from fastapi import APIRouter, BackgroundTasks
 
@@ -79,11 +80,31 @@ async def run_task(req: TaskRun, background_tasks: BackgroundTasks) -> dict:
         },
     )
 
+    async def execute_with_task_context() -> None:
+        task_context_path = executor.workspace.root_path / ".poco-task-context.json"
+        task_context_path.parent.mkdir(parents=True, exist_ok=True)
+        task_context_path.write_text(
+            json.dumps(
+                {
+                    "session_id": req.session_id,
+                    "callback_base_url": req.callback_base_url or base_url,
+                    "callback_token": req.callback_token,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        try:
+            await executor.execute(
+                prompt=req.prompt,
+                config=req.config,
+                permission_mode=req.permission_mode,
+            )
+        finally:
+            task_context_path.unlink(missing_ok=True)
+
     background_tasks.add_task(
-        executor.execute,
-        prompt=req.prompt,
-        config=req.config,
-        permission_mode=req.permission_mode,
+        execute_with_task_context,
     )
 
     return {"status": "accepted", "session_id": req.session_id}

@@ -117,6 +117,41 @@ class PendingSkillCreationService:
         )
         return [self._to_response(item) for item in items]
 
+    def submit_from_workspace(
+        self,
+        db: Session,
+        *,
+        user_id: str,
+        session: AgentSession,
+        folder_path: str,
+        skill_name: str | None = None,
+    ) -> PendingSkillCreation:
+        info = self.skill_workspace_service.inspect_workspace_skill(
+            session=session,
+            folder_path=folder_path,
+            skill_name=skill_name,
+        )
+        existing = PendingSkillCreationRepository.find_by_session_and_path(
+            db,
+            session_id=session.id,
+            skill_relative_path=info.folder_path,
+        )
+        if existing is not None:
+            return existing
+
+        pending = PendingSkillCreation(
+            user_id=user_id,
+            session_id=session.id,
+            detected_name=info.detected_name,
+            description=info.description,
+            workspace_files_prefix=session.workspace_files_prefix,
+            skill_relative_path=info.folder_path,
+            status="pending",
+        )
+        PendingSkillCreationRepository.create(db, pending)
+        db.flush()
+        return pending
+
     def get_creation(
         self,
         db: Session,
