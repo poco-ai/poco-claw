@@ -45,6 +45,15 @@
   },
   "hero": {
     "title": "Que puis-je faire pour vous ?",
+    "rotatingWords": [
+      "Créer des diapositives",
+      "Rechercher des informations",
+      "Faire des cartes mentales",
+      "Analyser des dépôts GitHub",
+      "Analyser des données",
+      "Planifier un voyage",
+      "Écrire du code"
+    ],
     "subtitle": "Assignez une tâche ou posez une question.",
     "uploadFile": "Téléverser un fichier",
     "dragDrop": {

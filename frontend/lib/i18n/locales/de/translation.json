@@ -46,6 +46,15 @@
   },
   "hero": {
     "title": "Was kann ich für dich tun?",
+    "rotatingWords": [
+      "Präsentationen erstellen",
+      "Recherchieren",
+      "Mindmaps erstellen",
+      "GitHub-Repos analysieren",
+      "Daten analysieren",
+      "Reisen planen",
+      "Code schreiben"
+    ],
     "subtitle": "Weise eine Aufgabe zu oder stelle eine Frage.",
     "uploadFile": "Datei hochladen",
     "dragDrop": {

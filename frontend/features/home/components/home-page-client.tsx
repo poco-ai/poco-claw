@@ -16,6 +16,7 @@ import {
 
 import { HomeHeader } from "./home-header";
 import { HomeBottomCardDeck } from "./home-bottom-card-deck";
+import { HeroTitle } from "./hero-title";
 import { ConnectorsBar, CapabilityToggleProvider } from "@/features/connectors";
 
 import { useAppShell } from "@/components/shell/app-shell-context";
@@ -274,7 +275,7 @@ export function HomePageClient() {
         />
 
         <TaskEntrySection
-          title={t("hero.title")}
+          title={<HeroTitle />}
           mode={mode}
           onModeChange={setMode}
           footer={<ConnectorsBar />}
