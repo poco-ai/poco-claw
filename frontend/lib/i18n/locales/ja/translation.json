@@ -611,7 +611,8 @@
       "processing": "ファイル処理",
       "notSupported": "この形式はプレビューをサポートしていません",
       "openInNewWindow": "新しいウィンドウで開く",
-      "downloadOriginal": "元のファイルをダウンロード"
+      "downloadOriginal": "元のファイルをダウンロード",
+      "frontMatter": "フロントマター"
     },
     "summary": {
       "total": "合計",
@@ -1457,6 +1458,7 @@
   "fileSidebar": {
     "title": "ファイルリスト",
     "fileList": "ファイルリスト",
+    "actions": "操作",
     "downloadAll": "すべてをダウンロード",
     "downloadFile": "ファイルをダウンロード",
     "noFiles": "まだファイルはありません",

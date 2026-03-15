@@ -611,7 +611,8 @@
       "processing": "Обработка файла",
       "notSupported": "Предварительный просмотр не поддерживается для этого формата",
       "openInNewWindow": "Открыть в новом окне",
-      "downloadOriginal": "Скачать исходный файл"
+      "downloadOriginal": "Скачать исходный файл",
+      "frontMatter": "Front matter"
     },
     "summary": {
       "total": "Всего",
@@ -1457,6 +1458,7 @@
   "fileSidebar": {
     "title": "Список файлов",
     "fileList": "Список файлов",
+    "actions": "Действия",
     "downloadAll": "Скачать все",
     "downloadFile": "Скачать файл",
     "noFiles": "Пока нет файлов",

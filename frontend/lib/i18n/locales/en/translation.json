@@ -621,6 +621,7 @@
       "loadingDoc": "Reading document...",
       "parseError": "Failed to parse Excalidraw file",
       "fetchError": "Failed to fetch document content",
+      "frontMatter": "Front matter",
       "retry": "Retry",
       "selectFile": "Please select a file from the right to preview",
       "supportedFormats": "Supports PDF, Office documents, common image formats, MP4 videos, XMind files, .excalidraw files, and .drawio files",
@@ -1574,6 +1575,7 @@
   "fileSidebar": {
     "title": "File List",
     "fileList": "File List",
+    "actions": "Actions",
     "downloadAll": "Download all",
     "downloadFile": "Download file",
     "noFiles": "No files yet",

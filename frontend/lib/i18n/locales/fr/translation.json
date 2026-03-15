@@ -611,7 +611,8 @@
       "processing": "Traitement du fichier",
       "notSupported": "Prévisualisation non supportée pour ce format",
       "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
-      "downloadOriginal": "Télécharger le fichier original"
+      "downloadOriginal": "Télécharger le fichier original",
+      "frontMatter": "Front matter"
     },
     "summary": {
       "total": "Total",
@@ -1457,6 +1458,7 @@
   "fileSidebar": {
     "title": "Liste des fichiers",
     "fileList": "Liste des fichiers",
+    "actions": "Actions",
     "downloadAll": "Tout télécharger",
     "downloadFile": "Télécharger le fichier",
     "noFiles": "Aucun fichier pour le moment",

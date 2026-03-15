@@ -612,7 +612,8 @@
       "processing": "Dateiverarbeitung",
       "notSupported": "Vorschau für dieses Format nicht unterstützt",
       "openInNewWindow": "In neuem Fenster öffnen",
-      "downloadOriginal": "Originaldatei herunterladen"
+      "downloadOriginal": "Originaldatei herunterladen",
+      "frontMatter": "Frontmatter"
     },
     "summary": {
       "total": "Gesamt",
@@ -1461,6 +1462,7 @@
   "fileSidebar": {
     "title": "Dateiliste",
     "fileList": "Dateiliste",
+    "actions": "Aktionen",
     "downloadAll": "Alle herunterladen",
     "downloadFile": "Datei herunterladen",
     "noFiles": "Noch keine Dateien",
