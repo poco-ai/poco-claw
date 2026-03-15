@@ -101,6 +101,7 @@ export function HeroTitle() {
         {staticTitle}
       </motion.span>
       <motion.span
+        initial={{ maxWidth: 0, opacity: 0, marginLeft: 0 }}
         animate={{
           maxWidth: isHovered ? 280 : 0,
           opacity: isHovered ? 1 : 0,
