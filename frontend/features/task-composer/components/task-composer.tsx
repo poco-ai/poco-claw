@@ -23,6 +23,7 @@ import { useFileDropUpload } from "@/features/task-composer/hooks/use-file-drop-
 import { useFileUpload } from "@/features/task-composer/hooks/use-file-upload";
 import { appendTranscribedText, useVoiceInput } from "@/features/voice";
 import { playInstallSound } from "@/lib/utils/sound";
+import { useCapabilityToggle } from "@/features/connectors";
 import type { RunScheduleMode } from "@/features/task-composer/model/run-schedule";
 import type {
   ComposerMode,
@@ -85,6 +86,7 @@ export function TaskComposer({
   const { t } = useT("translation");
   const { lng } = useAppShell();
   const memoryFeatureEnabled = useMemoryFeatureEnabled();
+  const capabilityToggle = useCapabilityToggle();
   const isComposing = React.useRef(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const latestValueRef = React.useRef(value);
@@ -355,8 +357,10 @@ export function TaskComposer({
 
       if (item.type === "mcp") {
         setMcpConfig(updateToggleMap);
+        capabilityToggle?.toggleMcp(item.id, enabled);
       } else {
         setSkillConfig(updateToggleMap);
+        capabilityToggle?.toggleSkill(item.id, enabled);
       }
 
       if (enabled) {
@@ -384,7 +388,7 @@ export function TaskComposer({
         return [...prev, item];
       });
     },
-    [],
+    [capabilityToggle],
   );
 
   // ---- Render ----

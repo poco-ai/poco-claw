@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCapabilityToggle } from "@/features/connectors";
 
 const MCP_LIMIT = 3;
 const SKILL_LIMIT = 5;
@@ -74,6 +75,7 @@ export function CardNav({
   const router = useRouter();
   const { lng } = useAppShell();
   const { t } = useT("translation");
+  const capabilityToggle = useCapabilityToggle();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Default trigger text from i18n if not provided
@@ -163,27 +165,41 @@ export function CardNav({
     void fetchData(true);
   }, [fetchData]);
 
-  // Get all installed MCPs
-  const installedMcps: InstalledItem[] = mcpInstalls.map((install) => {
-    const server = mcpServers.find((s) => s.id === install.server_id);
-    return {
-      id: install.server_id,
-      name: server?.name || t("cardNav.fallbackMcp", { id: install.server_id }),
-      enabled: install.enabled,
-      installId: install.id,
-    };
-  });
+  // Get all installed MCPs (merge with context overrides)
+  const installedMcps: InstalledItem[] = useMemo(() => {
+    return mcpInstalls.map((install) => {
+      const server = mcpServers.find((s) => s.id === install.server_id);
+      const contextEnabled = capabilityToggle?.getMcpEnabled(
+        install.server_id,
+        install.enabled,
+      );
+      return {
+        id: install.server_id,
+        name:
+          server?.name || t("cardNav.fallbackMcp", { id: install.server_id }),
+        enabled: contextEnabled ?? install.enabled,
+        installId: install.id,
+      };
+    });
+  }, [mcpInstalls, mcpServers, capabilityToggle, t]);
 
-  // Get all installed Skills
-  const installedSkills: InstalledItem[] = skillInstalls.map((install) => {
-    const skill = skills.find((s) => s.id === install.skill_id);
-    return {
-      id: install.skill_id,
-      name: skill?.name || t("cardNav.fallbackSkill", { id: install.skill_id }),
-      enabled: install.enabled,
-      installId: install.id,
-    };
-  });
+  // Get all installed Skills (merge with context overrides)
+  const installedSkills: InstalledItem[] = useMemo(() => {
+    return skillInstalls.map((install) => {
+      const skill = skills.find((s) => s.id === install.skill_id);
+      const contextEnabled = capabilityToggle?.getSkillEnabled(
+        install.skill_id,
+        install.enabled,
+      );
+      return {
+        id: install.skill_id,
+        name:
+          skill?.name || t("cardNav.fallbackSkill", { id: install.skill_id }),
+        enabled: contextEnabled ?? install.enabled,
+        installId: install.id,
+      };
+    });
+  }, [skillInstalls, skills, capabilityToggle, t]);
 
   // Get all installed Plugins
   const installedPlugins: InstalledItem[] = pluginInstalls.map((install) => {
@@ -200,9 +216,16 @@ export function CardNav({
   // Toggle MCP enabled state (local only, no API call)
   const toggleMcpEnabled = useCallback(
     (installId: number, currentEnabled: boolean) => {
+      const targetInstall = mcpInstalls.find(
+        (install) => install.id === installId,
+      );
+      if (!targetInstall) return;
+
+      const newEnabled = !currentEnabled;
+
       // Check if enabling would exceed the limit
-      const currentEnabledCount = mcpInstalls.filter((i) => i.enabled).length;
-      if (!currentEnabled && currentEnabledCount >= MCP_LIMIT) {
+      const currentEnabledCount = installedMcps.filter((i) => i.enabled).length;
+      if (newEnabled && currentEnabledCount >= MCP_LIMIT) {
         toast.warning(t("hero.warnings.mcpLimitReached"));
         return;
       }
@@ -210,16 +233,20 @@ export function CardNav({
       setMcpInstalls((prev) =>
         prev.map((install) =>
           install.id === installId
-            ? { ...install, enabled: !currentEnabled }
+            ? { ...install, enabled: newEnabled }
             : install,
         ),
       );
-      if (!currentEnabled) {
+
+      // Sync with context
+      capabilityToggle?.toggleMcp(targetInstall.server_id, newEnabled);
+
+      if (newEnabled) {
         playInstallSound();
       }
 
       // Check if we've exceeded the limit after enabling
-      const newEnabledCount = !currentEnabled
+      const newEnabledCount = newEnabled
         ? currentEnabledCount + 1
         : currentEnabledCount;
       if (newEnabledCount > MCP_LIMIT) {
@@ -228,15 +255,24 @@ export function CardNav({
         );
       }
     },
-    [mcpInstalls, t],
+    [mcpInstalls, installedMcps, capabilityToggle, t],
   );
 
   // Toggle Skill enabled state (local only, no API call)
   const toggleSkillEnabled = useCallback(
     (installId: number, currentEnabled: boolean) => {
+      const targetInstall = skillInstalls.find(
+        (install) => install.id === installId,
+      );
+      if (!targetInstall) return;
+
+      const newEnabled = !currentEnabled;
+
       // Check if enabling would exceed the limit
-      const currentEnabledCount = skillInstalls.filter((i) => i.enabled).length;
-      if (!currentEnabled && currentEnabledCount >= SKILL_LIMIT) {
+      const currentEnabledCount = installedSkills.filter(
+        (i) => i.enabled,
+      ).length;
+      if (newEnabled && currentEnabledCount >= SKILL_LIMIT) {
         toast.warning(t("hero.warnings.skillLimitReached"));
         return;
       }
@@ -244,16 +280,20 @@ export function CardNav({
       setSkillInstalls((prev) =>
         prev.map((install) =>
           install.id === installId
-            ? { ...install, enabled: !currentEnabled }
+            ? { ...install, enabled: newEnabled }
             : install,
         ),
       );
-      if (!currentEnabled) {
+
+      // Sync with context
+      capabilityToggle?.toggleSkill(targetInstall.skill_id, newEnabled);
+
+      if (newEnabled) {
         playInstallSound();
       }
 
       // Check if we've exceeded the limit after enabling
-      const newEnabledCount = !currentEnabled
+      const newEnabledCount = newEnabled
         ? currentEnabledCount + 1
         : currentEnabledCount;
       if (newEnabledCount > SKILL_LIMIT) {
@@ -262,7 +302,7 @@ export function CardNav({
         );
       }
     },
-    [skillInstalls, t],
+    [skillInstalls, installedSkills, capabilityToggle, t],
   );
 
   // Toggle Plugin enabled state (local only, no API call)

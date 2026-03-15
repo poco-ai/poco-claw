@@ -16,7 +16,7 @@ import {
 
 import { HomeHeader } from "./home-header";
 import { HomeBottomCardDeck } from "./home-bottom-card-deck";
-import { ConnectorsBar } from "@/features/connectors";
+import { ConnectorsBar, CapabilityToggleProvider } from "@/features/connectors";
 
 import { useAppShell } from "@/components/shell/app-shell-context";
 import { toast } from "sonner";
@@ -263,29 +263,31 @@ export function HomePageClient() {
   );
 
   return (
-    <div className="flex flex-1 flex-col min-h-0">
-      <HomeHeader
-        onOpenSettings={openSettings}
-        modelConfig={modelConfig}
-        modelOptions={modelOptions}
-        selectedModel={selectedModel}
-        onSelectModel={handleSelectModel}
-      />
+    <CapabilityToggleProvider>
+      <div className="flex flex-1 flex-col min-h-0">
+        <HomeHeader
+          onOpenSettings={openSettings}
+          modelConfig={modelConfig}
+          modelOptions={modelOptions}
+          selectedModel={selectedModel}
+          onSelectModel={handleSelectModel}
+        />
 
-      <TaskEntrySection
-        title={t("hero.title")}
-        mode={mode}
-        onModeChange={setMode}
-        footer={<ConnectorsBar />}
-        bottomPanel={<HomeBottomCardDeck cards={bottomCards} />}
-        composerProps={{
-          textareaRef,
-          value: inputValue,
-          onChange: setInputValue,
-          onSend: handleSendTask,
-          isSubmitting,
-        }}
-      />
-    </div>
+        <TaskEntrySection
+          title={t("hero.title")}
+          mode={mode}
+          onModeChange={setMode}
+          footer={<ConnectorsBar />}
+          bottomPanel={<HomeBottomCardDeck cards={bottomCards} />}
+          composerProps={{
+            textareaRef,
+            value: inputValue,
+            onChange: setInputValue,
+            onSend: handleSendTask,
+            isSubmitting,
+          }}
+        />
+      </div>
+    </CapabilityToggleProvider>
   );
 }
