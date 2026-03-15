@@ -41,7 +41,7 @@ class ImEventService:
             return
 
         event_id = uuid.uuid4()
-        payload = ImBackendEvent(
+        event = ImBackendEvent(
             id=str(event_id),
             type="assistant_message.created",
             version=self.EVENT_VERSION,

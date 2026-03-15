@@ -323,6 +323,37 @@ class CallbackService:
             usage_json=usage_data,
         )
 
+    def _should_skip_duplicate_result_message(
+        self,
+        db: Session,
+        session_id: uuid.UUID,
+        message: dict[str, Any],
+    ) -> bool:
+        message_type = str(message.get("_type", "")).strip()
+        if "ResultMessage" not in message_type:
+            return False
+        if message.get("structured_output") is not None:
+            return False
+
+        current_text = _normalize_visible_message_text(
+            _extract_visible_message_text(message)
+        )
+        if not current_text:
+            return False
+
+        latest_message = MessageRepository.get_latest_by_session(db, session_id)
+        if latest_message is None or latest_message.role != "assistant":
+            return False
+
+        latest_text = _normalize_visible_message_text(
+            _extract_visible_message_text(latest_message.content)
+        )
+        if not latest_text or latest_text != current_text:
+            return False
+
+        latest_type = str(latest_message.content.get("_type", "")).strip()
+        return "AssistantMessage" in latest_type or "ResultMessage" in latest_type
+
     def _persist_message_and_tools(
         self, db: Session, session_id: uuid.UUID, message: dict[str, Any]
     ) -> AgentMessage:
@@ -387,9 +418,20 @@ class CallbackService:
 
         persisted_message = None
         if callback.new_message and isinstance(callback.new_message, dict):
-            persisted_message = self._persist_message_and_tools(
+            if self._should_skip_duplicate_result_message(
                 db, db_session.id, callback.new_message
-            )
+            ):
+                logger.info(
+                    "skip_duplicate_result_message",
+                    extra={
+                        "session_id": str(db_session.id),
+                        "run_id": str(db_run.id) if db_run is not None else None,
+                    },
+                )
+            else:
+                persisted_message = self._persist_message_and_tools(
+                    db, db_session.id, callback.new_message
+                )
             self._extract_and_persist_usage(
                 db,
                 db_session,
@@ -467,22 +509,43 @@ class CallbackService:
             and callback.new_message
             and isinstance(callback.new_message, dict)
         ):
-            self._im_events.enqueue_assistant_message_created(
-                db,
-                db_session=db_session,
-                db_run=db_run,
-                db_message=persisted_message,
-                raw_message=callback.new_message,
-                callback=callback,
-            )
+            try:
+                self._im_events.enqueue_assistant_message_created(
+                    db,
+                    db_session=db_session,
+                    db_run=db_run,
+                    db_message=persisted_message,
+                    raw_message=callback.new_message,
+                    callback=callback,
+                )
+            except Exception:
+                logger.exception(
+                    "im_event_enqueue_failed",
+                    extra={
+                        "event_type": "assistant_message.created",
+                        "session_id": str(db_session.id),
+                        "run_id": str(db_run.id) if db_run is not None else None,
+                        "message_id": persisted_message.id,
+                    },
+                )
 
         if callback.status in {CallbackStatus.COMPLETED, CallbackStatus.FAILED}:
-            self._im_events.enqueue_run_terminal(
-                db,
-                db_session=db_session,
-                db_run=db_run,
-                callback=callback,
-            )
+            try:
+                self._im_events.enqueue_run_terminal(
+                    db,
+                    db_session=db_session,
+                    db_run=db_run,
+                    callback=callback,
+                )
+            except Exception:
+                logger.exception(
+                    "im_event_enqueue_failed",
+                    extra={
+                        "event_type": "run.terminal",
+                        "session_id": str(db_session.id),
+                        "run_id": str(db_run.id) if db_run is not None else None,
+                    },
+                )
 
         db.commit()
         return CallbackResponse(
@@ -516,3 +579,9 @@ def _extract_visible_message_text(message: dict[str, Any]) -> str | None:
         return text.strip()
 
     return None
+
+
+def _normalize_visible_message_text(text: str | None) -> str:
+    if not text:
+        return ""
+    return text.replace("\ufffd", "").strip()
