@@ -6,6 +6,7 @@ from app.models.agent_scheduled_task import AgentScheduledTask
 from app.models.agent_session import AgentSession
 from app.models.claude_md import UserClaudeMdSetting
 from app.models.env_var import UserEnvVar
+from app.models.im_event_outbox import ImEventOutbox
 from app.models.mcp_server import McpServer
 from app.models.memory_create_job import MemoryCreateJob
 from app.models.plugin import Plugin
@@ -33,6 +34,7 @@ __all__ = [
     "AgentSessionQueueItem",
     "UserClaudeMdSetting",
     "UserEnvVar",
+    "ImEventOutbox",
     "McpServer",
     "MemoryCreateJob",
     "Plugin",

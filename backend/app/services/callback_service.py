@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models.agent_run import AgentRun
 from app.models.agent_session import AgentSession
+from app.models.agent_message import AgentMessage
 from app.repositories.message_repository import MessageRepository
 from app.repositories.run_repository import RunRepository
 from app.repositories.session_repository import SessionRepository
@@ -18,6 +19,7 @@ from app.schemas.callback import (
     CallbackStatus,
 )
 from app.services.run_lifecycle_service import RunLifecycleService
+from app.services.im_event_service import ImEventService
 from app.services.session_queue_service import SessionQueueService
 from app.services.session_service import SessionService
 from app.utils.usage import normalize_usage_payload
@@ -32,6 +34,7 @@ class CallbackService:
         self._run_lifecycle = RunLifecycleService()
         self._session_queue = SessionQueueService()
         self._session_service = SessionService()
+        self._im_events = ImEventService()
 
     def _parse_run_id(self, raw_run_id: str | None) -> uuid.UUID | None:
         if not raw_run_id:
@@ -322,16 +325,11 @@ class CallbackService:
 
     def _persist_message_and_tools(
         self, db: Session, session_id: uuid.UUID, message: dict[str, Any]
-    ) -> None:
+    ) -> AgentMessage:
         role = self._extract_role_from_message(message)
-
-        text_preview = None
-        content = message.get("content", [])
-        if isinstance(content, list):
-            for block in content:
-                if isinstance(block, dict) and "TextBlock" in block.get("_type", ""):
-                    text_preview = block.get("text", "")[:500]
-                    break
+        text_preview = _extract_visible_message_text(message)
+        if text_preview:
+            text_preview = text_preview[:500]
 
         db_message = MessageRepository.create(
             session_db=db,
@@ -342,6 +340,7 @@ class CallbackService:
         )
         db.flush()
         self._extract_tool_executions(db, message, session_id, db_message.id)
+        return db_message
 
     def process_agent_callback(
         self, db: Session, callback: AgentCallbackRequest
@@ -386,8 +385,11 @@ class CallbackService:
         ):
             db_session.sdk_session_id = derived_sdk_session_id
 
+        persisted_message = None
         if callback.new_message and isinstance(callback.new_message, dict):
-            self._persist_message_and_tools(db, db_session.id, callback.new_message)
+            persisted_message = self._persist_message_and_tools(
+                db, db_session.id, callback.new_message
+            )
             self._extract_and_persist_usage(
                 db,
                 db_session,
@@ -460,9 +462,57 @@ class CallbackService:
                 if promoted_run is not None:
                     db_session.status = "pending"
 
+        if (
+            persisted_message is not None
+            and callback.new_message
+            and isinstance(callback.new_message, dict)
+        ):
+            self._im_events.enqueue_assistant_message_created(
+                db,
+                db_session=db_session,
+                db_run=db_run,
+                db_message=persisted_message,
+                raw_message=callback.new_message,
+                callback=callback,
+            )
+
+        if callback.status in {CallbackStatus.COMPLETED, CallbackStatus.FAILED}:
+            self._im_events.enqueue_run_terminal(
+                db,
+                db_session=db_session,
+                db_run=db_run,
+                callback=callback,
+            )
+
         db.commit()
         return CallbackResponse(
             session_id=str(db_session.id),
             status=db_session.status,
             callback_status=callback.status,
         )
+
+
+def _extract_visible_message_text(message: dict[str, Any]) -> str | None:
+    content = message.get("content", [])
+    if isinstance(content, list):
+        text_blocks: list[str] = []
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            if "TextBlock" not in str(block.get("_type", "")):
+                continue
+            block_text = block.get("text")
+            if isinstance(block_text, str) and block_text.strip():
+                text_blocks.append(block_text.strip())
+        if text_blocks:
+            return "\n\n".join(text_blocks)
+
+    result = message.get("result")
+    if isinstance(result, str) and result.strip():
+        return result.strip()
+
+    text = message.get("text")
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+
+    return None
