@@ -1,5 +1,4 @@
 import asyncio
-from datetime import timezone, datetime
 
 import httpx
 from pydantic import BaseModel
@@ -8,7 +7,6 @@ from fastapi.responses import JSONResponse
 
 from app.core.deps import require_callback_token
 from app.core.settings import get_settings
-from app.schemas.callback import AgentCallbackRequest, CallbackStatus
 from app.schemas.response import Response, ResponseSchema
 from app.services.backend_client import BackendClient
 from app.services.workspace_export_service import WorkspaceExportService
@@ -24,40 +22,30 @@ class SkillSubmitRequest(BaseModel):
     skill_name: str | None = None
 
 
-async def _sync_workspace_export(session_id: str) -> None:
-    result = await asyncio.to_thread(workspace_export_service.export_workspace, session_id)
+async def _prepare_and_export_skill_folder(
+    session_id: str,
+    *,
+    folder_path: str,
+) -> tuple[str, str]:
+    staged_folder_path = await asyncio.to_thread(
+        workspace_export_service.stage_skill_submission_folder,
+        session_id,
+        folder_path=folder_path,
+    )
+    result = await asyncio.to_thread(
+        workspace_export_service.export_workspace_folder,
+        session_id,
+        folder_path=staged_folder_path,
+    )
     if result.workspace_export_status != "ready":
         raise HTTPException(
             status_code=400,
-            detail=result.error or "Workspace export failed",
+            detail=result.error or "Skill folder export failed",
         )
-
-    session_response = await backend_client._request(
-        "GET",
-        f"/api/v1/sessions/{session_id}",
-        headers=BackendClient._trace_headers(),
-    )
-    session_payload = session_response.json().get("data", {}) or {}
-    raw_status = str(session_payload.get("status") or "").strip().lower()
-    callback_status = CallbackStatus.RUNNING
-    if raw_status == "accepted":
-        callback_status = CallbackStatus.ACCEPTED
-    elif raw_status == "completed":
-        callback_status = CallbackStatus.COMPLETED
-    elif raw_status == "failed":
-        callback_status = CallbackStatus.FAILED
-
-    callback = AgentCallbackRequest(
-        session_id=session_id,
-        time=datetime.now(timezone.utc),
-        status=callback_status,
-        progress=100 if callback_status == CallbackStatus.COMPLETED else 0,
-        workspace_files_prefix=result.workspace_files_prefix,
-        workspace_manifest_key=result.workspace_manifest_key,
-        workspace_archive_key=result.workspace_archive_key,
-        workspace_export_status=result.workspace_export_status,
-    )
-    await backend_client.forward_callback(callback.model_dump(mode="json"))
+    workspace_files_prefix = (result.workspace_files_prefix or "").strip()
+    if not workspace_files_prefix:
+        raise HTTPException(status_code=400, detail="Skill folder export is missing files")
+    return staged_folder_path, workspace_files_prefix
 
 
 @router.post("/submit", response_model=ResponseSchema[dict])
@@ -65,15 +53,19 @@ async def submit_skill(
     request: SkillSubmitRequest,
     _: None = Depends(require_callback_token),
 ) -> JSONResponse:
-    await _sync_workspace_export(request.session_id)
+    folder_path, workspace_files_prefix = await _prepare_and_export_skill_folder(
+        request.session_id,
+        folder_path=request.folder_path,
+    )
     try:
         response = await backend_client._request(
             "POST",
             "/api/v1/internal/skills/submit-from-workspace",
             params={"session_id": request.session_id},
             json={
-                "folder_path": request.folder_path,
+                "folder_path": folder_path,
                 "skill_name": request.skill_name,
+                "workspace_files_prefix": workspace_files_prefix,
             },
             headers={
                 "X-Internal-Token": get_settings().internal_api_token,
@@ -87,7 +79,9 @@ async def submit_skill(
             detail = payload.get("message") or payload.get("detail") or detail
         except Exception:
             pass
-        raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
+        raise HTTPException(
+            status_code=exc.response.status_code, detail=detail
+        ) from exc
 
     payload = response.json()
     return Response.success(

@@ -23,6 +23,7 @@ from app.utils.markdown_front_matter import parse_yaml_front_matter
 from app.utils.workspace_manifest import extract_manifest_files, normalize_manifest_path
 
 _SKILL_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+_ALLOWED_HIDDEN_SKILL_ROOTS = frozenset({".config", ".config_data"})
 _PENDING_STATUSES = {"pending", "failed", "creating"}
 
 
@@ -60,7 +61,8 @@ class PendingSkillCreationService:
             return []
 
         visible_skill_names = {
-            skill.name for skill in SkillRepository.list_visible(db, user_id=session.user_id)
+            skill.name
+            for skill in SkillRepository.list_visible(db, user_id=session.user_id)
         }
         manifest = self._storage_service().get_manifest(session.workspace_manifest_key)
         created: list[PendingSkillCreation] = []
@@ -125,11 +127,13 @@ class PendingSkillCreationService:
         session: AgentSession,
         folder_path: str,
         skill_name: str | None = None,
+        workspace_files_prefix: str | None = None,
     ) -> PendingSkillCreation:
         info = self.skill_workspace_service.inspect_workspace_skill(
             session=session,
             folder_path=folder_path,
             skill_name=skill_name,
+            workspace_files_prefix=workspace_files_prefix,
         )
         existing = PendingSkillCreationRepository.find_by_session_and_path(
             db,
@@ -139,7 +143,9 @@ class PendingSkillCreationService:
         if existing is not None:
             existing.detected_name = info.detected_name
             existing.description = info.description
-            existing.workspace_files_prefix = session.workspace_files_prefix
+            existing.workspace_files_prefix = (
+                workspace_files_prefix or session.workspace_files_prefix
+            )
             if existing.status != "creating":
                 existing.status = "pending"
                 existing.resolved_name = None
@@ -154,7 +160,8 @@ class PendingSkillCreationService:
             session_id=session.id,
             detected_name=info.detected_name,
             description=info.description,
-            workspace_files_prefix=session.workspace_files_prefix,
+            workspace_files_prefix=workspace_files_prefix
+            or session.workspace_files_prefix,
             skill_relative_path=info.folder_path,
             status="pending",
         )
@@ -213,6 +220,7 @@ class PendingSkillCreationService:
                 description=request.description,
                 overwrite=request.overwrite,
                 pending_creation_id=pending.id,
+                workspace_files_prefix=pending.workspace_files_prefix,
             )
             pending.status = "success"
             pending.skill_id = result.skill_id
@@ -248,7 +256,9 @@ class PendingSkillCreationService:
             )
         pending.status = "canceled"
         pending.error = (
-            reason.strip()[:1000] if isinstance(reason, str) and reason.strip() else None
+            reason.strip()[:1000]
+            if isinstance(reason, str) and reason.strip()
+            else None
         )
         db.commit()
         db.refresh(pending)
@@ -284,9 +294,7 @@ class PendingSkillCreationService:
         pending: PendingSkillCreation,
     ) -> AgentSession:
         session = (
-            db.query(AgentSession)
-            .filter(AgentSession.id == pending.session_id)
-            .first()
+            db.query(AgentSession).filter(AgentSession.id == pending.session_id).first()
         )
         if session is None:
             raise AppException(
@@ -303,7 +311,9 @@ class PendingSkillCreationService:
     ) -> str | None:
         clean_name = detected_name.strip().lower()
         for execution in tool_executions:
-            tool_input = execution.tool_input if isinstance(execution.tool_input, dict) else {}
+            tool_input = (
+                execution.tool_input if isinstance(execution.tool_input, dict) else {}
+            )
             for value in tool_input.values():
                 if isinstance(value, str) and clean_name in value.lower():
                     return execution.tool_use_id
@@ -331,7 +341,7 @@ class PendingSkillCreationService:
             parts = [part for part in parent.parts if part]
             if len(parts) != 3 or parts[1] != "skills":
                 continue
-            if parts[0] not in {".config", ".config_data"}:
+            if parts[0] not in _ALLOWED_HIDDEN_SKILL_ROOTS:
                 continue
 
             detected_name = parts[2]
@@ -367,8 +377,10 @@ class PendingSkillCreationService:
 
     @staticmethod
     def _looks_like_valid_skill_name(name: str) -> bool:
-        return bool(name) and name not in {".", ".."} and bool(
-            _SKILL_NAME_PATTERN.fullmatch(name)
+        return (
+            bool(name)
+            and name not in {".", ".."}
+            and bool(_SKILL_NAME_PATTERN.fullmatch(name))
         )
 
     @staticmethod

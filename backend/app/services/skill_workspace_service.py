@@ -49,11 +49,13 @@ class SkillWorkspaceService:
         session: AgentSession,
         folder_path: str,
         skill_name: str | None = None,
+        workspace_files_prefix: str | None = None,
     ) -> WorkspaceSkillInfo:
         normalized_folder_path = self._normalize_folder_path(folder_path)
         skill_markdown_key = self._resolve_skill_markdown_key(
             session=session,
             folder_path=normalized_folder_path,
+            workspace_files_prefix=workspace_files_prefix,
         )
         frontmatter = parse_yaml_front_matter(
             self._storage_service().get_text(skill_markdown_key)
@@ -81,11 +83,13 @@ class SkillWorkspaceService:
         description: str | None = None,
         overwrite: bool = False,
         pending_creation_id: uuid.UUID | None = None,
+        workspace_files_prefix: str | None = None,
     ) -> WorkspaceSkillCreateResult:
         info = self.inspect_workspace_skill(
             session=session,
             folder_path=folder_path,
             skill_name=skill_name,
+            workspace_files_prefix=workspace_files_prefix,
         )
         if description is not None:
             info.description = self._normalize_description(description)
@@ -96,7 +100,10 @@ class SkillWorkspaceService:
                 message=f"Skill already exists: {info.detected_name}",
             )
 
-        workspace_prefix = self._require_workspace_files_prefix(session)
+        workspace_prefix = self._resolve_workspace_files_prefix(
+            session=session,
+            workspace_files_prefix=workspace_files_prefix,
+        )
         source_prefix = f"{workspace_prefix}/{info.folder_path.lstrip('/')}"
         version_id = str(uuid.uuid4())
         destination_prefix = f"skills/{user_id}/{info.detected_name}/{version_id}"
@@ -171,7 +178,17 @@ class SkillWorkspaceService:
         *,
         session: AgentSession,
         folder_path: str,
+        workspace_files_prefix: str | None = None,
     ) -> str:
+        skill_markdown_path = f"{folder_path}/SKILL.md"
+        workspace_prefix = self._resolve_workspace_files_prefix(
+            session=session,
+            workspace_files_prefix=workspace_files_prefix,
+        )
+        fallback_key = f"{workspace_prefix}/{skill_markdown_path.lstrip('/')}"
+        if self._storage_service().exists(fallback_key):
+            return fallback_key
+
         self._require_workspace_export_ready(session)
         manifest_key = (session.workspace_manifest_key or "").strip()
         if not manifest_key:
@@ -181,7 +198,6 @@ class SkillWorkspaceService:
             )
 
         manifest = self._storage_service().get_manifest(manifest_key)
-        skill_markdown_path = f"{folder_path}/SKILL.md"
         for file_entry in extract_manifest_files(manifest):
             normalized_path = normalize_manifest_path(file_entry.get("path"))
             if normalized_path != skill_markdown_path:
@@ -189,11 +205,6 @@ class SkillWorkspaceService:
             object_key = self._extract_object_key(file_entry)
             if object_key:
                 return object_key
-
-        workspace_prefix = self._require_workspace_files_prefix(session)
-        fallback_key = f"{workspace_prefix}/{skill_markdown_path.lstrip('/')}"
-        if self._storage_service().exists(fallback_key):
-            return fallback_key
 
         raise AppException(
             error_code=ErrorCode.NOT_FOUND,
@@ -254,8 +265,14 @@ class SkillWorkspaceService:
         return None
 
     @staticmethod
-    def _require_workspace_files_prefix(session: AgentSession) -> str:
-        workspace_prefix = (session.workspace_files_prefix or "").strip().rstrip("/")
+    def _resolve_workspace_files_prefix(
+        *,
+        session: AgentSession,
+        workspace_files_prefix: str | None = None,
+    ) -> str:
+        workspace_prefix = (
+            workspace_files_prefix or session.workspace_files_prefix or ""
+        ).strip().rstrip("/")
         if not workspace_prefix:
             raise AppException(
                 error_code=ErrorCode.BAD_REQUEST,

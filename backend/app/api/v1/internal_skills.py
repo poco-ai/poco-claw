@@ -40,6 +40,7 @@ async def submit_skill_from_workspace(
         session=session,
         folder_path=request.folder_path,
         skill_name=request.skill_name,
+        workspace_files_prefix=request.workspace_files_prefix,
     )
     db.commit()
     db.refresh(pending)

@@ -29,6 +29,7 @@ class SubmitSkillRequest(BaseModel):
 
     folder_path: str
     skill_name: str | None = None
+    workspace_files_prefix: str | None = None
 
 
 class SubmitSkillResponse(BaseModel):
