@@ -98,7 +98,7 @@ export function TaskActionsDropdown({
                   className="focus:bg-muted focus:text-foreground"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onMoveToProject?.(taskId, project.id);
+                    void onMoveToProject?.(taskId, project.id);
                   }}
                 >
                   <span className="truncate">{project.name}</span>

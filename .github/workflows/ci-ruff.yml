@@ -2,9 +2,13 @@ name: CI Ruff
 
 on:
   pull_request:
+    paths-ignore:
+      - backend/assets/**
   push:
     branches:
       - main
+    paths-ignore:
+      - backend/assets/**
   workflow_dispatch:
 
 permissions:

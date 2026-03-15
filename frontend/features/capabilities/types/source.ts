@@ -1,4 +1,10 @@
-export type SourceKind = "github" | "zip" | "system" | "manual" | "unknown";
+export type SourceKind =
+  | "github"
+  | "zip"
+  | "system"
+  | "manual"
+  | "unknown"
+  | "skill-creator";
 
 export interface SourceInfo {
   kind: SourceKind;

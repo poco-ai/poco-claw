@@ -503,6 +503,28 @@
         "structured": "Structured data",
         "empty": "No data"
       }
+    },
+    "skillCreationReview": {
+      "title": "作成されたスキルを確認",
+      "subtitle": "このセッションでエージェントがスキルを作成しました。保存前に確認してください。",
+      "badge": "エージェント作成",
+      "nameLabel": "スキル名",
+      "descriptionLabel": "説明",
+      "emptyDescription": "説明は生成されませんでした。",
+      "pathLabel": "ワークスペースのパス",
+      "conflictWarning": "同じ名前のスキルが既に存在します。",
+      "overwriteLabel": "既存のスキルを上書きする",
+      "filesTitle": "生成されたファイル",
+      "loadingFiles": "生成されたファイルを読み込み中…",
+      "emptyFiles": "まだプレビューできるファイルはありません。",
+      "selectFile": "プレビューするファイルを選択してください。",
+      "cancel": "キャンセル",
+      "confirm": "スキルを作成",
+      "confirmOverwrite": "上書きして作成",
+      "createSuccess": "スキルを作成しました",
+      "createFailed": "スキルの作成に失敗しました",
+      "cancelSuccess": "スキル作成を取り消しました",
+      "cancelFailed": "スキル作成の取り消しに失敗しました"
     }
   },
   "status": {
@@ -612,7 +634,8 @@
       "processing": "ファイル処理",
       "notSupported": "この形式はプレビューをサポートしていません",
       "openInNewWindow": "新しいウィンドウで開く",
-      "downloadOriginal": "元のファイルをダウンロード"
+      "downloadOriginal": "元のファイルをダウンロード",
+      "frontMatter": "フロントマター"
     },
     "summary": {
       "total": "合計",
@@ -1059,7 +1082,11 @@
       },
       "scope": {
         "system": "システム",
-        "user": "ユーザー"
+        "user": "ユーザー",
+        "builtin": "組み込み"
+      },
+      "source": {
+        "skillCreator": "Agent 作成"
       },
       "fields": {
         "id": "ID",
@@ -1214,7 +1241,8 @@
       "zip": "ZIP",
       "system": "システム",
       "manual": "手動",
-      "unknown": "不明"
+      "unknown": "不明",
+      "skillCreator": "Skill Creator"
     },
     "pluginsManager": {
       "toasts": {
@@ -1453,8 +1481,19 @@
   "fileSidebar": {
     "title": "ファイルリスト",
     "fileList": "ファイルリスト",
+    "actions": "操作",
     "downloadAll": "すべてをダウンロード",
+    "download": "ダウンロード",
+    "downloadFile": "ファイルをダウンロード",
     "noFiles": "まだファイルはありません",
+    "packageAsSkill": "Skillとしてパッケージ",
+    "packageSkillTitle": "フォルダーをSkillとして登録",
+    "packageSkillDescription": "このワークスペースフォルダーを Skill レビューに送信します。",
+    "skillName": "Skill 名",
+    "skillNamePlaceholder": "Skill 名を入力",
+    "submitSkill": "レビューに送信",
+    "skillSubmitted": "Skill をレビューに送信しました",
+    "skillSubmitFailed": "Skill の送信に失敗しました",
     "downloadStarted": "ワークスペースアーカイブのダウンロードを開始しています",
     "downloadStart": "ワークスペースアーカイブのダウンロードを開始しています",
     "archiveNotAvailable": "アーカイブファイルがまだ利用できません",

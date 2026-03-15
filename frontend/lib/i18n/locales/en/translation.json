@@ -506,6 +506,28 @@
         "structured": "Structured data",
         "empty": "No data"
       }
+    },
+    "skillCreationReview": {
+      "title": "Review created skill",
+      "subtitle": "The agent created a skill in this session. Review it before saving.",
+      "badge": "Created by agent",
+      "nameLabel": "Skill name",
+      "descriptionLabel": "Description",
+      "emptyDescription": "No description was generated.",
+      "pathLabel": "Workspace path",
+      "conflictWarning": "A skill with this name already exists.",
+      "overwriteLabel": "Overwrite the existing skill",
+      "filesTitle": "Generated files",
+      "loadingFiles": "Loading generated files…",
+      "emptyFiles": "No preview files are available yet.",
+      "selectFile": "Select a file to preview it.",
+      "cancel": "Cancel",
+      "confirm": "Create skill",
+      "confirmOverwrite": "Overwrite & create",
+      "createSuccess": "Skill created",
+      "createFailed": "Failed to create skill",
+      "cancelSuccess": "Skill creation dismissed",
+      "cancelFailed": "Failed to dismiss skill creation"
     }
   },
   "status": {
@@ -609,6 +631,7 @@
       "loadingDoc": "Reading document...",
       "parseError": "Failed to parse Excalidraw file",
       "fetchError": "Failed to fetch document content",
+      "frontMatter": "Front matter",
       "retry": "Retry",
       "selectFile": "Please select a file from the right to preview",
       "supportedFormats": "Supports PDF, Office documents, common image formats, MP4 videos, XMind files, .excalidraw files, and .drawio files",
@@ -1073,7 +1096,11 @@
       },
       "scope": {
         "system": "System",
-        "user": "User"
+        "user": "User",
+        "builtin": "Built-in"
+      },
+      "source": {
+        "skillCreator": "Created by agent"
       },
       "fields": {
         "id": "id",
@@ -1322,7 +1349,8 @@
       "zip": "ZIP",
       "system": "System",
       "manual": "Manual",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "skillCreator": "Skill Creator"
     },
     "presets": {
       "title": "Presets",
@@ -1557,8 +1585,19 @@
   "fileSidebar": {
     "title": "File List",
     "fileList": "File List",
+    "actions": "Actions",
     "downloadAll": "Download all",
+    "download": "Download",
+    "downloadFile": "Download file",
     "noFiles": "No files yet",
+    "packageAsSkill": "Package as Skill",
+    "packageSkillTitle": "Package folder as skill",
+    "packageSkillDescription": "Submit this workspace folder for skill review.",
+    "skillName": "Skill name",
+    "skillNamePlaceholder": "Enter a skill name",
+    "submitSkill": "Submit for review",
+    "skillSubmitted": "Skill submitted for review",
+    "skillSubmitFailed": "Failed to submit skill for review",
     "downloadStarted": "Starting workspace archive download",
     "downloadStart": "Starting workspace archive download",
     "archiveNotAvailable": "Archive file not available yet",

@@ -503,6 +503,28 @@
         "structured": "Structured data",
         "empty": "No data"
       }
+    },
+    "skillCreationReview": {
+      "title": "Проверить созданный навык",
+      "subtitle": "Агент создал навык в этой сессии. Проверьте его перед сохранением.",
+      "badge": "Создано агентом",
+      "nameLabel": "Название навыка",
+      "descriptionLabel": "Описание",
+      "emptyDescription": "Описание не было создано.",
+      "pathLabel": "Путь в рабочем пространстве",
+      "conflictWarning": "Навык с таким именем уже существует.",
+      "overwriteLabel": "Перезаписать существующий навык",
+      "filesTitle": "Созданные файлы",
+      "loadingFiles": "Загрузка созданных файлов…",
+      "emptyFiles": "Файлы для предпросмотра пока недоступны.",
+      "selectFile": "Выберите файл для предпросмотра.",
+      "cancel": "Отмена",
+      "confirm": "Создать навык",
+      "confirmOverwrite": "Перезаписать и создать",
+      "createSuccess": "Навык создан",
+      "createFailed": "Не удалось создать навык",
+      "cancelSuccess": "Создание навыка отклонено",
+      "cancelFailed": "Не удалось отклонить создание навыка"
     }
   },
   "status": {
@@ -612,7 +634,8 @@
       "processing": "Обработка файла",
       "notSupported": "Предварительный просмотр не поддерживается для этого формата",
       "openInNewWindow": "Открыть в новом окне",
-      "downloadOriginal": "Скачать исходный файл"
+      "downloadOriginal": "Скачать исходный файл",
+      "frontMatter": "Front matter"
     },
     "summary": {
       "total": "Всего",
@@ -1059,7 +1082,11 @@
       },
       "scope": {
         "system": "Система",
-        "user": "Пользователь"
+        "user": "Пользователь",
+        "builtin": "Встроенный"
+      },
+      "source": {
+        "skillCreator": "Создано агентом"
       },
       "fields": {
         "id": "id",
@@ -1214,7 +1241,8 @@
       "zip": "ZIP",
       "system": "Система",
       "manual": "Вручную",
-      "unknown": "Неизвестно"
+      "unknown": "Неизвестно",
+      "skillCreator": "Skill Creator"
     },
     "pluginsManager": {
       "toasts": {
@@ -1453,8 +1481,19 @@
   "fileSidebar": {
     "title": "Список файлов",
     "fileList": "Список файлов",
+    "actions": "Действия",
     "downloadAll": "Скачать все",
+    "download": "Скачать",
+    "downloadFile": "Скачать файл",
     "noFiles": "Пока нет файлов",
+    "packageAsSkill": "Упаковать как Skill",
+    "packageSkillTitle": "Создать Skill из папки",
+    "packageSkillDescription": "Отправьте эту папку рабочего пространства на проверку Skill.",
+    "skillName": "Имя Skill",
+    "skillNamePlaceholder": "Введите имя Skill",
+    "submitSkill": "Отправить на проверку",
+    "skillSubmitted": "Skill отправлен на проверку",
+    "skillSubmitFailed": "Не удалось отправить Skill",
     "downloadStarted": "Начинается загрузка архива рабочего пространства",
     "downloadStart": "Начинается загрузка архива рабочего пространства",
     "archiveNotAvailable": "Файл архива пока недоступен",

@@ -11,6 +11,7 @@ from app.api.v1 import (
     internal_claude_md,
     internal_env_vars,
     internal_memories,
+    internal_skills,
     internal_plugin_config,
     internal_slash_commands,
     internal_mcp_config,
@@ -24,6 +25,7 @@ from app.api.v1 import (
     plugin_imports,
     plugin_installs,
     plugins,
+    pending_skill_creations,
     projects,
     runs,
     schedules,
@@ -67,6 +69,7 @@ api_v1_router.include_router(search.router)
 api_v1_router.include_router(internal_claude_md.router)
 api_v1_router.include_router(internal_env_vars.router)
 api_v1_router.include_router(internal_memories.router)
+api_v1_router.include_router(internal_skills.router)
 api_v1_router.include_router(internal_mcp_config.router)
 api_v1_router.include_router(internal_skill_config.router)
 api_v1_router.include_router(internal_scheduled_tasks.router)
@@ -79,6 +82,7 @@ api_v1_router.include_router(user_mcp_installs.router)
 api_v1_router.include_router(skills.router)
 api_v1_router.include_router(skill_imports.router)
 api_v1_router.include_router(skill_installs.router)
+api_v1_router.include_router(pending_skill_creations.router)
 api_v1_router.include_router(plugins.router)
 api_v1_router.include_router(plugin_imports.router)
 api_v1_router.include_router(plugin_installs.router)

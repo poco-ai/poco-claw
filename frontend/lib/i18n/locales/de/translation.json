@@ -504,6 +504,28 @@
         "structured": "Structured data",
         "empty": "No data"
       }
+    },
+    "skillCreationReview": {
+      "title": "Erstellten Skill prüfen",
+      "subtitle": "Der Agent hat in dieser Sitzung einen Skill erstellt. Bitte vor dem Speichern prüfen.",
+      "badge": "Vom Agent erstellt",
+      "nameLabel": "Skill-Name",
+      "descriptionLabel": "Beschreibung",
+      "emptyDescription": "Es wurde keine Beschreibung erzeugt.",
+      "pathLabel": "Workspace-Pfad",
+      "conflictWarning": "Ein Skill mit diesem Namen existiert bereits.",
+      "overwriteLabel": "Vorhandenen Skill überschreiben",
+      "filesTitle": "Erzeugte Dateien",
+      "loadingFiles": "Erzeugte Dateien werden geladen…",
+      "emptyFiles": "Noch keine Vorschaudateien verfügbar.",
+      "selectFile": "Wähle eine Datei zur Vorschau aus.",
+      "cancel": "Abbrechen",
+      "confirm": "Skill erstellen",
+      "confirmOverwrite": "Überschreiben und erstellen",
+      "createSuccess": "Skill erstellt",
+      "createFailed": "Skill konnte nicht erstellt werden",
+      "cancelSuccess": "Skill-Erstellung verworfen",
+      "cancelFailed": "Skill-Erstellung konnte nicht verworfen werden"
     }
   },
   "status": {
@@ -613,7 +635,8 @@
       "processing": "Dateiverarbeitung",
       "notSupported": "Vorschau für dieses Format nicht unterstützt",
       "openInNewWindow": "In neuem Fenster öffnen",
-      "downloadOriginal": "Originaldatei herunterladen"
+      "downloadOriginal": "Originaldatei herunterladen",
+      "frontMatter": "Frontmatter"
     },
     "summary": {
       "total": "Gesamt",
@@ -1063,7 +1086,11 @@
       },
       "scope": {
         "system": "System",
-        "user": "Benutzer"
+        "user": "Benutzer",
+        "builtin": "Integriert"
+      },
+      "source": {
+        "skillCreator": "Vom Agent erstellt"
       },
       "fields": {
         "id": "id",
@@ -1218,7 +1245,8 @@
       "zip": "ZIP",
       "system": "System",
       "manual": "Manuell",
-      "unknown": "Unbekannt"
+      "unknown": "Unbekannt",
+      "skillCreator": "Skill Creator"
     },
     "pluginsManager": {
       "toasts": {
@@ -1457,8 +1485,19 @@
   "fileSidebar": {
     "title": "Dateiliste",
     "fileList": "Dateiliste",
+    "actions": "Aktionen",
     "downloadAll": "Alle herunterladen",
+    "download": "Herunterladen",
+    "downloadFile": "Datei herunterladen",
     "noFiles": "Noch keine Dateien",
+    "packageAsSkill": "Als Skill erstellen",
+    "packageSkillTitle": "Ordner als Skill erstellen",
+    "packageSkillDescription": "Diesen Workspace-Ordner zur Skill-Prüfung einreichen.",
+    "skillName": "Skill-Name",
+    "skillNamePlaceholder": "Skill-Namen eingeben",
+    "submitSkill": "Zur Prüfung einreichen",
+    "skillSubmitted": "Skill zur Prüfung eingereicht",
+    "skillSubmitFailed": "Skill konnte nicht eingereicht werden",
     "downloadStarted": "Herunterladen des Arbeitsbereichs-Archivs gestartet",
     "downloadStart": "Herunterladen des Arbeitsbereichs-Archivs gestartet",
     "archiveNotAvailable": "Archivdatei noch nicht verfügbar",

@@ -405,8 +405,8 @@ class ConfigResolver:
         1) config_snapshot.skill_ids -> fetch entries via backend internal API
         2) legacy config_snapshot.skill_files already contains entry configs
         """
-        skill_ids = self._normalize_ids(config_snapshot.get("skill_ids"))
-        if skill_ids:
+        if "skill_ids" in config_snapshot:
+            skill_ids = self._normalize_ids(config_snapshot.get("skill_ids"))
             return await self.backend_client.resolve_skill_config(
                 user_id=user_id, skill_ids=skill_ids
             )

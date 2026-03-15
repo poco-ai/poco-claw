@@ -164,6 +164,11 @@ class ContainerPool:
             "WORKSPACE_PATH": "/workspace",
             "USER_ID": user_id,
             "SESSION_ID": session_id,
+            "CALLBACK_BASE_URL": self.settings.callback_base_url.rstrip("/"),
+            "CALLBACK_TOKEN": self.settings.callback_token,
+            "POCO_SESSION_ID": session_id,
+            "POCO_CALLBACK_BASE_URL": self.settings.callback_base_url.rstrip("/"),
+            "POCO_CALLBACK_TOKEN": self.settings.callback_token,
             "EXECUTOR_TIMEZONE": self.settings.executor_timezone,
         }
         anthropic_api_key = (self.settings.anthropic_api_key or "").strip()

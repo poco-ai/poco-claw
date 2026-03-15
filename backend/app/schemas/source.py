@@ -3,7 +3,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-SourceKind = Literal["github", "zip", "system", "manual", "unknown"]
+SourceKind = Literal["github", "zip", "system", "manual", "unknown", "skill-creator"]
 
 
 class SourceInfo(BaseModel):

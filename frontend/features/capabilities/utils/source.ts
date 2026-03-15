@@ -28,6 +28,7 @@ export function formatSourceLabel(
   }
 
   if (kind === "system") return t("library.sources.system");
+  if (kind === "skill-creator") return t("library.sources.skillCreator");
   if (kind === "manual") return t("library.sources.manual");
   return t("library.sources.unknown");
 }

@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     internal_api_token: str = Field(
         default="change-this-token-in-production", alias="INTERNAL_API_TOKEN"
     )
+    bootstrap_on_startup: bool = Field(default=True, alias="BOOTSTRAP_ON_STARTUP")
 
     # External services
     executor_manager_url: str = Field(

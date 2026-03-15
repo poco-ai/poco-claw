@@ -503,6 +503,28 @@
         "structured": "Structured data",
         "empty": "No data"
       }
+    },
+    "skillCreationReview": {
+      "title": "Vérifier la compétence créée",
+      "subtitle": "L'agent a créé une compétence dans cette session. Vérifiez-la avant de l'enregistrer.",
+      "badge": "Créé par l'agent",
+      "nameLabel": "Nom de la compétence",
+      "descriptionLabel": "Description",
+      "emptyDescription": "Aucune description n'a été générée.",
+      "pathLabel": "Chemin de l’espace de travail",
+      "conflictWarning": "Une compétence portant ce nom existe déjà.",
+      "overwriteLabel": "Remplacer la compétence existante",
+      "filesTitle": "Fichiers générés",
+      "loadingFiles": "Chargement des fichiers générés…",
+      "emptyFiles": "Aucun fichier d’aperçu n’est encore disponible.",
+      "selectFile": "Sélectionnez un fichier à prévisualiser.",
+      "cancel": "Annuler",
+      "confirm": "Créer la compétence",
+      "confirmOverwrite": "Remplacer et créer",
+      "createSuccess": "Compétence créée",
+      "createFailed": "Échec de la création de la compétence",
+      "cancelSuccess": "Création de compétence ignorée",
+      "cancelFailed": "Impossible d’ignorer la création de compétence"
     }
   },
   "status": {
@@ -612,7 +634,8 @@
       "processing": "Traitement du fichier",
       "notSupported": "Prévisualisation non supportée pour ce format",
       "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
-      "downloadOriginal": "Télécharger le fichier original"
+      "downloadOriginal": "Télécharger le fichier original",
+      "frontMatter": "Front matter"
     },
     "summary": {
       "total": "Total",
@@ -1059,7 +1082,11 @@
       },
       "scope": {
         "system": "Système",
-        "user": "Utilisateur"
+        "user": "Utilisateur",
+        "builtin": "Intégré"
+      },
+      "source": {
+        "skillCreator": "Créé par l'agent"
       },
       "fields": {
         "id": "id",
@@ -1214,7 +1241,8 @@
       "zip": "ZIP",
       "system": "Système",
       "manual": "Manuel",
-      "unknown": "Inconnu"
+      "unknown": "Inconnu",
+      "skillCreator": "Skill Creator"
     },
     "pluginsManager": {
       "toasts": {
@@ -1453,8 +1481,19 @@
   "fileSidebar": {
     "title": "Liste des fichiers",
     "fileList": "Liste des fichiers",
+    "actions": "Actions",
     "downloadAll": "Tout télécharger",
+    "download": "Télécharger",
+    "downloadFile": "Télécharger le fichier",
     "noFiles": "Aucun fichier pour le moment",
+    "packageAsSkill": "Créer un skill",
+    "packageSkillTitle": "Créer un skill depuis le dossier",
+    "packageSkillDescription": "Soumettez ce dossier de l'espace de travail pour validation du skill.",
+    "skillName": "Nom du skill",
+    "skillNamePlaceholder": "Saisissez un nom de skill",
+    "submitSkill": "Soumettre pour validation",
+    "skillSubmitted": "Skill soumis pour validation",
+    "skillSubmitFailed": "Échec de la soumission du skill",
     "downloadStarted": "Début du téléchargement de l'archive de l'espace de travail",
     "downloadStart": "Début du téléchargement de l'archive de l'espace de travail",
     "archiveNotAvailable": "Archive non disponible pour le moment",

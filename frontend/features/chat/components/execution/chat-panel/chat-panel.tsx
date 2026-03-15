@@ -17,6 +17,7 @@ import { PendingMessageList } from "./pending-message-list";
 import { ChatInput, type ChatInputRef } from "./chat-input";
 import { UserInputRequestCard } from "./user-input-request-card";
 import { PlanApprovalCard } from "./plan-approval-card";
+import { SkillCreationReviewCard } from "./skill-creation-review-card";
 import {
   PanelHeader,
   PanelHeaderAction,
@@ -24,6 +25,7 @@ import {
 import { useChatMessages } from "./hooks/use-chat-messages";
 import { usePendingMessages } from "./hooks/use-pending-messages";
 import { useUserInputRequests } from "./hooks/use-user-input-requests";
+import { usePendingSkillCreations } from "./hooks/use-pending-skill-creations";
 import {
   branchSessionAction,
   cancelSessionAction,
@@ -51,6 +53,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { ModelSelector } from "@/features/chat/components/chat/model-selector";
 import { useModelCatalog } from "@/features/chat/hooks/use-model-catalog";
@@ -217,6 +225,15 @@ export function ChatPanel({
   } = useUserInputRequests(
     session?.session_id,
     Boolean(session?.session_id) && isSessionActive,
+  );
+  const {
+    activeCreation: pendingSkillCreation,
+    isSubmitting: isSubmittingPendingSkillCreation,
+    confirmCreation: confirmPendingSkillCreation,
+    cancelCreation: cancelPendingSkillCreation,
+  } = usePendingSkillCreations(
+    session?.session_id,
+    Boolean(session?.session_id) && session?.status === "completed",
   );
 
   const activeUserInput = userInputRequests[0];
@@ -1165,6 +1182,37 @@ export function ChatPanel({
           ) : null}
         </div>
       ) : null}
+
+      <Dialog
+        open={Boolean(pendingSkillCreation)}
+        onOpenChange={() => undefined}
+      >
+        <DialogContent
+          className="max-h-[90vh]   w-[calc(100vw-2rem)] sm:max-w-[90vw]
+ lg:max-w-[960px] xl:max-w-[1000px overflow-hidden p-0"
+          showCloseButton={false}
+        >
+          <DialogTitle className="sr-only">
+            {t("chat.skillCreationReview.title")}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("chat.skillCreationReview.subtitle")}
+          </DialogDescription>
+          {pendingSkillCreation ? (
+            <SkillCreationReviewCard
+              creation={pendingSkillCreation}
+              isSubmitting={isSubmittingPendingSkillCreation}
+              className="border-0 bg-transparent p-6 shadow-none"
+              onConfirm={(payload) =>
+                confirmPendingSkillCreation(pendingSkillCreation.id, payload)
+              }
+              onCancel={() =>
+                cancelPendingSkillCreation(pendingSkillCreation.id)
+              }
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       {/* Status Bar - Skills and MCP */}
       {(hasConfigSnapshot || hasSkills || hasMcp || hasBrowser) && (

@@ -53,6 +53,10 @@ export const API_ENDPOINTS = {
     `/sessions/${sessionId}/workspace/files`,
   sessionWorkspaceArchive: (sessionId: string) =>
     `/sessions/${sessionId}/workspace/archive`,
+  sessionWorkspaceFolderArchive: (sessionId: string) =>
+    `/sessions/${sessionId}/workspace/folder-archive`,
+  sessionWorkspaceSubmitSkill: (sessionId: string) =>
+    `/sessions/${sessionId}/workspace/submit-skill`,
 
   // User Input Requests
   userInputRequests: "/user-input-requests",
@@ -108,6 +112,13 @@ export const API_ENDPOINTS = {
   skillImportDiscover: "/skills/import/discover",
   skillImportCommit: "/skills/import/commit",
   skillImportJob: (jobId: string) => `/skills/import/jobs/${jobId}`,
+  pendingSkillCreations: "/pending-skill-creations",
+  pendingSkillCreation: (creationId: string) =>
+    `/pending-skill-creations/${creationId}`,
+  pendingSkillCreationConfirm: (creationId: string) =>
+    `/pending-skill-creations/${creationId}/confirm`,
+  pendingSkillCreationCancel: (creationId: string) =>
+    `/pending-skill-creations/${creationId}/cancel`,
 
   // Skill Installs
   skillInstalls: "/skill-installs",

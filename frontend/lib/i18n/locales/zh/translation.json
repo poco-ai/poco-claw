@@ -506,6 +506,28 @@
         "structured": "结构化数据",
         "empty": "无数据"
       }
+    },
+    "skillCreationReview": {
+      "title": "审查已创建技能",
+      "subtitle": "本次会话中智能体创建了一个技能，请先确认再保存。",
+      "badge": "智能体创建",
+      "nameLabel": "技能名称",
+      "descriptionLabel": "描述",
+      "emptyDescription": "未生成描述。",
+      "pathLabel": "工作区路径",
+      "conflictWarning": "已存在同名技能。",
+      "overwriteLabel": "覆盖已有技能",
+      "filesTitle": "生成的文件",
+      "loadingFiles": "正在加载生成文件…",
+      "emptyFiles": "暂时没有可预览的文件。",
+      "selectFile": "选择一个文件进行预览。",
+      "cancel": "取消",
+      "confirm": "创建技能",
+      "confirmOverwrite": "覆盖并创建",
+      "createSuccess": "技能已创建",
+      "createFailed": "创建技能失败",
+      "cancelSuccess": "已忽略本次技能创建",
+      "cancelFailed": "忽略技能创建失败"
     }
   },
   "status": {
@@ -609,6 +631,7 @@
       "loadingDoc": "正在读取文档...",
       "parseError": "无法解析 Excalidraw 文件",
       "fetchError": "无法获取文档内容",
+      "frontMatter": "前言元数据",
       "retry": "重试",
       "selectFile": "请从右侧选择文件进行预览",
       "supportedFormats": "支持 PDF、Office 文档、常见图片格式、MP4 视频、XMind 文件、.excalidraw 文件和 .drawio 文件",
@@ -1073,7 +1096,11 @@
       },
       "scope": {
         "system": "系统",
-        "user": "个人"
+        "user": "个人",
+        "builtin": "内置"
+      },
+      "source": {
+        "skillCreator": "Agent 创建"
       },
       "fields": {
         "id": "id",
@@ -1322,7 +1349,8 @@
       "zip": "ZIP",
       "system": "系统",
       "manual": "手动",
-      "unknown": "未知"
+      "unknown": "未知",
+      "skillCreator": "Skill Creator"
     },
     "presets": {
       "title": "预设",
@@ -1557,8 +1585,19 @@
   "fileSidebar": {
     "title": "文件列表",
     "fileList": "文件列表",
+    "actions": "操作",
     "downloadAll": "下载全部",
+    "download": "下载",
+    "downloadFile": "下载文件",
     "noFiles": "暂无文件",
+    "packageAsSkill": "打包为 Skill",
+    "packageSkillTitle": "将文件夹打包为 Skill",
+    "packageSkillDescription": "将这个工作区文件夹提交到 Skill 审核队列。",
+    "skillName": "Skill 名称",
+    "skillNamePlaceholder": "输入 Skill 名称",
+    "submitSkill": "提交审核",
+    "skillSubmitted": "已提交 Skill 审核",
+    "skillSubmitFailed": "提交 Skill 审核失败",
     "downloadStarted": "开始下载工作区归档",
     "downloadStart": "开始下载工作区归档",
     "archiveNotAvailable": "归档文件暂不可用",

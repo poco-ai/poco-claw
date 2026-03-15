@@ -3,6 +3,7 @@
 import {
   Archive,
   BadgeQuestionMark,
+  Bot,
   Github,
   Pencil,
   ShieldCheck,
@@ -20,6 +21,7 @@ const SOURCE_ICON_MAP: Record<SourceKind, LucideIcon> = {
   zip: Archive,
   system: ShieldCheck,
   manual: Pencil,
+  "skill-creator": Bot,
   unknown: BadgeQuestionMark,
 };
 
