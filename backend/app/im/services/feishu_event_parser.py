@@ -5,6 +5,7 @@ from typing import Any
 from app.im.schemas.im_message import InboundMessage
 
 _LEADING_MENTION_RE = re.compile(r"^(?:<at\s+[^>]*>.*?</at>\s*)+")
+_LEADING_PLAIN_MENTION_RE = re.compile(r"^(?:[@\uff20][^\s]+\s*)+")
 
 
 def parse_feishu_webhook_event(payload: dict[str, Any]) -> InboundMessage | None:
@@ -57,7 +58,7 @@ def extract_sender_id(sender: Any) -> str | None:
 
 
 def clean_text(text: str) -> str:
-    cleaned = (text or "").replace("\u2005", " ").replace("\u2006", " ").strip()
+    cleaned = _normalize_text(text)
     while True:
         matched = _LEADING_MENTION_RE.match(cleaned)
         if not matched:
@@ -99,7 +100,12 @@ def _build_inbound_message(
     if sender_type and sender_type != "user":
         return None
 
-    text = clean_text(extract_text(_read_field(message, "content")))
+    raw_text = extract_text(_read_field(message, "content"))
+    chat_type = str(_read_field(message, "chat_type") or "").strip().lower()
+    if _requires_explicit_mention(chat_type) and not _has_leading_mention(raw_text):
+        return None
+
+    text = clean_text(raw_text)
     if not text:
         text = "/help"
 
@@ -148,3 +154,20 @@ def _try_dump_dict(value: Any) -> dict[str, Any] | None:
             return dumped
 
     return None
+
+
+def _normalize_text(text: str) -> str:
+    return (text or "").replace("\u2005", " ").replace("\u2006", " ").strip()
+
+
+def _requires_explicit_mention(chat_type: str) -> bool:
+    return chat_type != "p2p"
+
+
+def _has_leading_mention(text: str) -> bool:
+    normalized = _normalize_text(text)
+    if not normalized:
+        return False
+    if _LEADING_MENTION_RE.match(normalized):
+        return True
+    return bool(_LEADING_PLAIN_MENTION_RE.match(normalized))
