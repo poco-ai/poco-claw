@@ -9,33 +9,10 @@ import dingtalk_stream
 
 from app.core.settings import get_settings
 from app.im.schemas.im_message import InboundMessage
+from app.im.services.dingtalk_event_parser import clean_text, has_explicit_mention
 from app.im.services.inbound_message_service import InboundMessageService
 
 logger = logging.getLogger(__name__)
-
-
-def _is_truthy(value: object) -> bool:
-    if value is True:
-        return True
-    if value is False or value is None:
-        return False
-    if isinstance(value, int):
-        return value != 0
-    if isinstance(value, str):
-        return value.strip().lower() in {"1", "true", "yes", "y"}
-    return bool(value)
-
-
-def _clean_text(text: str) -> str:
-    cleaned = (text or "").replace("\u2005", " ").replace("\u2006", " ").strip()
-    # DingTalk may prepend "@BotName" to the message content in group chats.
-    # Strip leading mentions so command parsing works (e.g. "/list", "/new ...").
-    while cleaned.startswith(("@", "＠")):
-        parts = cleaned.split(maxsplit=1)
-        if len(parts) == 1:
-            return ""
-        cleaned = parts[1].strip()
-    return cleaned
 
 
 class PocoDingTalkChatbotHandler(dingtalk_stream.ChatbotHandler):
@@ -56,10 +33,9 @@ class PocoDingTalkChatbotHandler(dingtalk_stream.ChatbotHandler):
         if msg_type and msg_type != "text":
             return dingtalk_stream.AckMessage.STATUS_OK, "OK"
 
-        conversation_type = str(incoming.conversation_type or "").strip()
-        if conversation_type == "2" and incoming.is_in_at_list is not None:
-            if not _is_truthy(incoming.is_in_at_list):
-                return dingtalk_stream.AckMessage.STATUS_OK, "OK"
+        raw_text = ""
+        if incoming.text and isinstance(incoming.text.content, str):
+            raw_text = incoming.text.content.strip()
 
         # Ignore bot self messages to avoid loops.
         sender_uid = str(incoming.sender_id or incoming.sender_staff_id or "").strip()
@@ -67,10 +43,16 @@ class PocoDingTalkChatbotHandler(dingtalk_stream.ChatbotHandler):
         if sender_uid and bot_uid and sender_uid == bot_uid:
             return dingtalk_stream.AckMessage.STATUS_OK, "OK"
 
-        raw_text = ""
-        if incoming.text and isinstance(incoming.text.content, str):
-            raw_text = incoming.text.content.strip()
-        text = _clean_text(raw_text)
+        if not has_explicit_mention(
+            conversation_type=str(incoming.conversation_type or "").strip(),
+            is_in_at_list=incoming.is_in_at_list,
+            at_users=incoming.at_users,
+            bot_user_id=bot_uid or None,
+            raw_text=raw_text,
+        ):
+            return dingtalk_stream.AckMessage.STATUS_OK, "OK"
+
+        text = clean_text(raw_text)
         if not text:
             text = "/help"
 

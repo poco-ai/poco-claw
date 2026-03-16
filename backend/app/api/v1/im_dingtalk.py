@@ -1,16 +1,14 @@
-import re
 from typing import Any
 
 from fastapi import APIRouter, Query, Request
 
 from app.core.settings import get_settings
 from app.im.schemas.im_message import InboundMessage
+from app.im.services.dingtalk_event_parser import clean_text, has_explicit_mention
 from app.im.services.inbound_message_service import InboundMessageService
 from app.schemas.response import Response
 
 router = APIRouter(prefix="/webhooks/dingtalk", tags=["dingtalk"])
-
-_LEADING_MENTION_RE = re.compile(r"^[@＠][^\s]+\s*")
 
 
 @router.post("")
@@ -65,17 +63,19 @@ def _parse_dingtalk_event(payload: dict[str, Any]) -> InboundMessage | None:
     if msg_type and msg_type.lower() != "text":
         return None
 
+    raw_text = _extract_text(payload)
     conversation_type = str(payload.get("conversationType") or "").strip()
-    is_in_at_list = payload.get("isInAtList")
-    if (
-        conversation_type == "2"
-        and is_in_at_list is not None
-        and not _is_truthy(is_in_at_list)
+    bot_user_id = str(payload.get("chatbotUserId") or "").strip() or None
+    if not has_explicit_mention(
+        conversation_type=conversation_type,
+        is_in_at_list=payload.get("isInAtList"),
+        at_users=payload.get("atUsers"),
+        bot_user_id=bot_user_id,
+        raw_text=raw_text,
     ):
         return None
 
-    text = _extract_text(payload)
-    text = _clean_text(text)
+    text = clean_text(raw_text)
     if not text:
         text = "/help"
 
@@ -96,8 +96,7 @@ def _parse_dingtalk_event(payload: dict[str, Any]) -> InboundMessage | None:
     raw_sender_uid = str(
         payload.get("senderStaffId") or payload.get("senderId") or ""
     ).strip()
-    bot_uid = str(payload.get("chatbotUserId") or "").strip()
-    if raw_sender_uid and bot_uid and raw_sender_uid == bot_uid:
+    if raw_sender_uid and bot_user_id and raw_sender_uid == bot_user_id:
         return None
 
     sender_id = (
@@ -133,25 +132,3 @@ def _extract_text(payload: dict[str, Any]) -> str:
         return content.strip()
 
     return ""
-
-
-def _clean_text(text: str) -> str:
-    cleaned = (text or "").replace("\u2005", " ").replace("\u2006", " ").strip()
-    while True:
-        matched = _LEADING_MENTION_RE.match(cleaned)
-        if not matched:
-            break
-        cleaned = cleaned[matched.end() :].strip()
-    return cleaned
-
-
-def _is_truthy(value: Any) -> bool:
-    if value is True:
-        return True
-    if value is False or value is None:
-        return False
-    if isinstance(value, int):
-        return value != 0
-    if isinstance(value, str):
-        return value.strip().lower() in {"1", "true", "yes", "y"}
-    return bool(value)
