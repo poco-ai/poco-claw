@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
@@ -8,6 +10,8 @@ from app.im.repositories.dedup_repository import DedupRepository
 from app.im.schemas.im_message import InboundMessage
 from app.im.services.command_service import CommandService
 from app.im.services.notification_gateway import NotificationGateway
+
+logger = logging.getLogger(__name__)
 
 
 class InboundMessageService:
@@ -30,6 +34,16 @@ class InboundMessageService:
                 provider=message.provider,
                 destination=message.destination,
             )
+            if not channel.enabled:
+                logger.info(
+                    "im_channel_disabled_ignoring_inbound",
+                    extra={
+                        "provider": message.provider,
+                        "destination": message.destination,
+                        "channel_id": channel.id,
+                    },
+                )
+                return
             send_address = _resolve_send_address(
                 db,
                 channel=channel,
@@ -48,11 +62,19 @@ class InboundMessageService:
 
         target = send_address or message.destination
         for resp in responses:
-            await self.gateway.send_text(
+            sent = await self.gateway.send_text(
                 provider=message.provider,
                 destination=target,
                 text=resp,
             )
+            if not sent:
+                logger.warning(
+                    "im_inbound_reply_failed",
+                    extra={
+                        "provider": message.provider,
+                        "destination": target,
+                    },
+                )
 
 
 def _resolve_send_address(

@@ -34,6 +34,8 @@ def _get_lark_ws_sdk() -> Any:
 
 
 class FeishuStreamService:
+    _reconnect_delay_seconds = 3.0
+
     def __init__(self) -> None:
         settings = get_settings()
         self._enabled = bool(settings.feishu_enabled and settings.feishu_stream_enabled)
@@ -76,9 +78,46 @@ class FeishuStreamService:
         lark_ws_sdk = _get_lark_ws_sdk()
 
         self._loop = asyncio.get_running_loop()
-        finished = asyncio.Event()
         self._stopping.clear()
 
+        try:
+            while not self._stopping.is_set():
+                finished = asyncio.Event()
+                thread = threading.Thread(
+                    target=self._build_runner(
+                        finished=finished,
+                        lark_sdk=lark_sdk,
+                        lark_ws_sdk=lark_ws_sdk,
+                    ),
+                    name="feishu-stream",
+                    daemon=True,
+                )
+                self._thread = thread
+                thread.start()
+                await finished.wait()
+                self._thread = None
+
+                if self._stopping.is_set():
+                    break
+
+                logger.warning(
+                    "feishu_stream_disconnected_restarting",
+                    extra={"delay_seconds": self._reconnect_delay_seconds},
+                )
+                await asyncio.sleep(self._reconnect_delay_seconds)
+        except asyncio.CancelledError:
+            await self._stop_client()
+            raise
+        finally:
+            self._thread = None
+
+    def _build_runner(
+        self,
+        *,
+        finished: asyncio.Event,
+        lark_sdk: Any,
+        lark_ws_sdk: Any,
+    ):
         def _runner() -> None:
             thread_loop: asyncio.AbstractEventLoop | None = None
             try:
@@ -121,21 +160,7 @@ class FeishuStreamService:
                     except RuntimeError:
                         pass
 
-        thread = threading.Thread(
-            target=_runner,
-            name="feishu-stream",
-            daemon=True,
-        )
-        self._thread = thread
-        thread.start()
-
-        try:
-            await finished.wait()
-        except asyncio.CancelledError:
-            await self._stop_client()
-            raise
-        finally:
-            self._thread = None
+        return _runner
 
     def _handle_message_event(self, data: Any) -> None:
         inbound = parse_feishu_stream_event(data)
