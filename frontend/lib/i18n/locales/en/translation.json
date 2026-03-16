@@ -1641,7 +1641,7 @@
         "statusMissing": "Not configured",
         "keyLabel": "SkillsMP API Key",
         "keyPlaceholder": "Enter your SkillsMP API key",
-        "help": "This key unlocks SkillsMP marketplace search and recommendation requests inside the skill import dialog.",
+        "help": "Use it to enable SkillsMP marketplace search and recommendation requests inside the skill import dialog.",
         "docsLink": "SkillsMP API docs",
         "customKeySaved": "A custom user-level key is already stored for this account.",
         "save": "Save key",

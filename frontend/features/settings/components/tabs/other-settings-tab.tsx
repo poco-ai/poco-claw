@@ -1,14 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  ExternalLink,
-  KeyRound,
-  Loader2,
-  RotateCcw,
-  Save,
-  Sparkles,
-} from "lucide-react";
+import { ExternalLink, Loader2, RotateCcw, Save, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -124,9 +117,6 @@ export function OtherSettingsTab() {
                 <h4 className="text-base font-medium text-foreground">
                   {t("settings.other.skillsmp.title")}
                 </h4>
-                <p className="text-sm text-muted-foreground">
-                  {t("settings.other.skillsmp.subtitle")}
-                </p>
               </div>
             </div>
           </div>
@@ -140,11 +130,7 @@ export function OtherSettingsTab() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="skillsmp-api-key"
-            className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground"
-          >
-            <KeyRound className="size-3.5" />
+          <label htmlFor="skillsmp-api-key" className="sr-only">
             {t("settings.other.skillsmp.keyLabel")}
           </label>
           <Input
@@ -167,11 +153,6 @@ export function OtherSettingsTab() {
               <ExternalLink className="size-3" />
             </a>
           </p>
-          {customSkillsMpKey ? (
-            <p className="text-xs text-muted-foreground">
-              {t("settings.other.skillsmp.customKeySaved")}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">

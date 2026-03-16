@@ -1537,7 +1537,7 @@
         "statusMissing": "Non configuré",
         "keyLabel": "Clé API SkillsMP",
         "keyPlaceholder": "Entrez votre clé API SkillsMP",
-        "help": "Cette clé active la recherche et les recommandations SkillsMP dans la fenêtre d'import de skills.",
+        "help": "Active la recherche et les recommandations SkillsMP dans la fenêtre d'import de skills.",
         "docsLink": "Documentation API SkillsMP",
         "customKeySaved": "Une clé personnalisée au niveau utilisateur est déjà enregistrée pour ce compte.",
         "save": "Enregistrer la clé",

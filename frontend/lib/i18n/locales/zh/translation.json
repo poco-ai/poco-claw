@@ -1641,7 +1641,7 @@
         "statusMissing": "未配置",
         "keyLabel": "SkillsMP API Key",
         "keyPlaceholder": "请输入你的 SkillsMP API Key",
-        "help": "这个 key 用于在技能导入弹窗中启用 SkillsMP 市场搜索和推荐请求。",
+        "help": "用于在技能导入弹窗中启用 SkillsMP 市场搜索和推荐请求。",
         "docsLink": "SkillsMP API 文档",
         "customKeySaved": "当前账户已经保存了一个用户级自定义 key。",
         "save": "保存 Key",

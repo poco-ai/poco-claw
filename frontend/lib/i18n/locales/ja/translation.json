@@ -1537,7 +1537,7 @@
         "statusMissing": "未設定",
         "keyLabel": "SkillsMP API キー",
         "keyPlaceholder": "SkillsMP API キーを入力",
-        "help": "このキーを設定すると、skill import ダイアログで SkillsMP の検索とおすすめを利用できます。",
+        "help": "skill import ダイアログで SkillsMP の検索とおすすめを利用できます。",
         "docsLink": "SkillsMP API ドキュメント",
         "customKeySaved": "このアカウントには既にユーザー専用のカスタムキーが保存されています。",
         "save": "キーを保存",

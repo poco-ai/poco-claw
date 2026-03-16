@@ -2,28 +2,9 @@
 
 import * as React from "react";
 import { useMemo, useState } from "react";
-import {
-  AlignLeft,
-  ArrowUpRight,
-  CheckCheck,
-  Github,
-  Loader2,
-  ListChecks,
-  Settings2,
-  Sparkles,
-  Type,
-} from "lucide-react";
+import { CheckCheck, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAppShell } from "@/components/shell/app-shell-context";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,25 +14,16 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CapabilityDialogContent } from "@/features/capabilities/components/capability-dialog-content";
 import { skillsService } from "@/features/capabilities/skills/api/skills-api";
-import {
-  clearCachedSkillsMarketplaceRecommendations,
-  readCachedSkillsMarketplaceRecommendations,
-  writeCachedSkillsMarketplaceRecommendations,
-} from "@/features/capabilities/skills/api/skills-marketplace-cache";
-import { SkillMarketplaceBrowser } from "@/features/capabilities/skills/components/skill-marketplace-browser";
 import { markSlashCommandSuggestionsInvalidated } from "@/features/capabilities/slash-commands/api/suggestions-state";
 import type {
   SkillImportCandidate,
   SkillImportCommitResponse,
   SkillImportDiscoverResponse,
-  SkillsMpRecommendationSection,
-  SkillsMpSkillItem,
 } from "@/features/capabilities/skills/types";
-import { ApiError } from "@/lib/errors";
 import { useT } from "@/lib/i18n/client";
 import { playInstallSound } from "@/lib/utils/sound";
 
-type SourceTab = "zip" | "github" | "command" | "marketplace";
+type SourceTab = "zip" | "github" | "command";
 
 interface CandidateSelectionState {
   selected: boolean;
@@ -187,40 +159,20 @@ export interface SkillImportDialogProps {
   open: boolean;
   onClose: () => void;
   onImported?: () => void | Promise<void>;
+  initialDiscoverResponse?: SkillImportDiscoverResponse | null;
 }
 
 export function SkillImportDialog({
   open,
   onClose,
   onImported,
+  initialDiscoverResponse = null,
 }: SkillImportDialogProps) {
   const { t } = useT("translation");
-  const { openSettings } = useAppShell();
-  const [tab, setTab] = useState<SourceTab>("marketplace");
+  const [tab, setTab] = useState<SourceTab>("github");
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
   const [commandInput, setCommandInput] = useState("");
-  const [marketplaceQuery, setMarketplaceQuery] = useState("");
-  const [isSemanticSearch, setIsSemanticSearch] = useState(false);
-  const [marketplaceRecommendations, setMarketplaceRecommendations] = useState<
-    SkillsMpRecommendationSection[]
-  >([]);
-  const [marketplaceSearchItems, setMarketplaceSearchItems] = useState<
-    SkillsMpSkillItem[]
-  >([]);
-  const [marketplaceHasActiveSearch, setMarketplaceHasActiveSearch] =
-    useState(false);
-  const [marketplaceError, setMarketplaceError] = useState<string | null>(null);
-  const [isMarketplaceLoading, setIsMarketplaceLoading] = useState(false);
-  const [marketplaceDownloadingId, setMarketplaceDownloadingId] = useState<
-    string | null
-  >(null);
-  const [isMarketplaceConfigured, setIsMarketplaceConfigured] = useState(false);
-  const [isMarketplaceStatusLoading, setIsMarketplaceStatusLoading] =
-    useState(false);
-  const [resolvedMarketplaceItem, setResolvedMarketplaceItem] =
-    useState<SkillsMpSkillItem | null>(null);
-
   const [archiveKey, setArchiveKey] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<SkillImportCandidate[]>([]);
   const [candidatePage, setCandidatePage] = useState(1);
@@ -233,6 +185,7 @@ export function SkillImportDialog({
   const [commitProgress, setCommitProgress] = useState<number | null>(null);
   const [commitError, setCommitError] = useState<string | null>(null);
   const [, setCommitResult] = useState<SkillImportCommitResponse | null>(null);
+  const initialDiscoverAppliedArchiveKeyRef = React.useRef<string | null>(null);
 
   const isActiveRef = React.useRef(true);
   React.useEffect(() => {
@@ -243,19 +196,10 @@ export function SkillImportDialog({
   }, []);
 
   const reset = React.useCallback(() => {
-    setTab("marketplace");
+    setTab("github");
     setZipFile(null);
     setGithubUrl("");
     setCommandInput("");
-    setMarketplaceQuery("");
-    setIsSemanticSearch(false);
-    setMarketplaceRecommendations([]);
-    setMarketplaceSearchItems([]);
-    setMarketplaceHasActiveSearch(false);
-    setMarketplaceError(null);
-    setIsMarketplaceLoading(false);
-    setMarketplaceDownloadingId(null);
-    setResolvedMarketplaceItem(null);
     setArchiveKey(null);
     setCandidates([]);
     setCandidatePage(1);
@@ -265,6 +209,7 @@ export function SkillImportDialog({
     setCommitProgress(null);
     setCommitError(null);
     setCommitResult(null);
+    initialDiscoverAppliedArchiveKeyRef.current = null;
   }, []);
 
   const handleClose = React.useCallback(() => {
@@ -344,91 +289,24 @@ export function SkillImportDialog({
     [],
   );
 
-  const loadMarketplaceRecommendations = React.useCallback(
-    async (options?: { forceRefresh?: boolean }) => {
-      const forceRefresh = options?.forceRefresh ?? false;
-
-      if (!forceRefresh) {
-        const cachedSections = readCachedSkillsMarketplaceRecommendations();
-        if (cachedSections) {
-          setMarketplaceRecommendations(cachedSections);
-          setMarketplaceSearchItems([]);
-          setMarketplaceHasActiveSearch(false);
-          setMarketplaceError(null);
-          return;
-        }
-      } else {
-        clearCachedSkillsMarketplaceRecommendations();
-      }
-
-      setIsMarketplaceLoading(true);
-      setMarketplaceError(null);
-      try {
-        const response = await skillsService.listMarketplaceRecommendations({
-          limit: 8,
-        });
-        if (!isActiveRef.current) return;
-        const sections = response.sections || [];
-        writeCachedSkillsMarketplaceRecommendations(sections);
-        setMarketplaceRecommendations(sections);
-        setMarketplaceSearchItems([]);
-        setMarketplaceHasActiveSearch(false);
-      } catch (error) {
-        console.error(
-          "[SkillsImport] marketplace recommendations failed:",
-          error,
-        );
-        if (!isActiveRef.current) return;
-        setMarketplaceError(
-          error instanceof ApiError
-            ? error.message
-            : t("library.skillsImport.toasts.marketplaceLoadError"),
-        );
-      } finally {
-        if (isActiveRef.current) {
-          setIsMarketplaceLoading(false);
-        }
-      }
-    },
-    [t],
-  );
-
   React.useEffect(() => {
-    if (!open) {
-      return;
-    }
+    if (!open || !initialDiscoverResponse) return;
 
-    let cancelled = false;
-    const loadMarketplaceStatus = async () => {
-      setIsMarketplaceStatusLoading(true);
-      try {
-        const response = await skillsService.getMarketplaceStatus();
-        if (!cancelled) {
-          setIsMarketplaceConfigured(response.configured);
-        }
-      } catch (error) {
-        console.error("[SkillsImport] marketplace status failed:", error);
-        if (!cancelled) {
-          setIsMarketplaceConfigured(false);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsMarketplaceStatusLoading(false);
-        }
-      }
-    };
+    const archiveKey = initialDiscoverResponse.archive_key;
+    if (initialDiscoverAppliedArchiveKeyRef.current === archiveKey) return;
 
-    void loadMarketplaceStatus();
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+    applyDiscoverResponse(initialDiscoverResponse, {
+      preselectedRelativePath:
+        initialDiscoverResponse.preselected_relative_path || null,
+      selectAllByDefault: false,
+    });
+    initialDiscoverAppliedArchiveKeyRef.current = archiveKey;
+  }, [applyDiscoverResponse, initialDiscoverResponse, open]);
 
   const onDiscover = async () => {
     setIsDiscovering(true);
     setCommitResult(null);
     setCommitError(null);
-    setResolvedMarketplaceItem(null);
     try {
       const formData = new FormData();
       const parsedGithubInput =
@@ -476,115 +354,6 @@ export function SkillImportDialog({
       setIsDiscovering(false);
     }
   };
-
-  const onMarketplaceDownload = React.useCallback(
-    async (item: SkillsMpSkillItem) => {
-      setMarketplaceDownloadingId(item.external_id);
-      setCommitResult(null);
-      setCommitError(null);
-      try {
-        const response = await skillsService.marketplaceImportDiscover({
-          item,
-        });
-        applyDiscoverResponse(response, {
-          preselectedRelativePath: response.preselected_relative_path || null,
-          selectAllByDefault: false,
-        });
-        setResolvedMarketplaceItem(response.skillsmp_item ?? item);
-        toast.success(t("library.skillsImport.toasts.discovered"));
-      } catch (error) {
-        console.error(
-          "[SkillsImport] marketplace import discover failed:",
-          error,
-        );
-        toast.error(t("library.skillsImport.toasts.marketplaceDiscoverError"));
-      } finally {
-        if (isActiveRef.current) {
-          setMarketplaceDownloadingId(null);
-        }
-      }
-    },
-    [applyDiscoverResponse, t],
-  );
-
-  const searchMarketplace = React.useCallback(async () => {
-    const query = marketplaceQuery.trim();
-    if (!query) {
-      setMarketplaceHasActiveSearch(false);
-      setMarketplaceSearchItems([]);
-      await loadMarketplaceRecommendations();
-      return;
-    }
-
-    setIsMarketplaceLoading(true);
-    setMarketplaceError(null);
-    try {
-      const response = await skillsService.searchMarketplaceSkills({
-        q: query,
-        page: 1,
-        page_size: 12,
-        semantic: isSemanticSearch,
-      });
-      if (!isActiveRef.current) return;
-      const items = response.items || [];
-      setMarketplaceSearchItems(items);
-      setMarketplaceHasActiveSearch(true);
-    } catch (error) {
-      console.error("[SkillsImport] marketplace search failed:", error);
-      if (!isActiveRef.current) return;
-      setMarketplaceError(
-        error instanceof ApiError
-          ? error.message
-          : t("library.skillsImport.toasts.marketplaceLoadError"),
-      );
-    } finally {
-      if (isActiveRef.current) {
-        setIsMarketplaceLoading(false);
-      }
-    }
-  }, [isSemanticSearch, loadMarketplaceRecommendations, marketplaceQuery, t]);
-
-  const resetMarketplaceSearch = React.useCallback(async () => {
-    setMarketplaceQuery("");
-    setMarketplaceSearchItems([]);
-    setMarketplaceHasActiveSearch(false);
-    await loadMarketplaceRecommendations();
-  }, [loadMarketplaceRecommendations]);
-
-  const refreshMarketplaceRecommendations = React.useCallback(async () => {
-    setMarketplaceQuery("");
-    setMarketplaceSearchItems([]);
-    setMarketplaceHasActiveSearch(false);
-    await loadMarketplaceRecommendations({ forceRefresh: true });
-  }, [loadMarketplaceRecommendations]);
-
-  React.useEffect(() => {
-    if (
-      !open ||
-      tab !== "marketplace" ||
-      archiveKey ||
-      !isMarketplaceConfigured
-    ) {
-      return;
-    }
-    if (
-      marketplaceRecommendations.length > 0 ||
-      marketplaceHasActiveSearch ||
-      isMarketplaceLoading
-    ) {
-      return;
-    }
-    void loadMarketplaceRecommendations();
-  }, [
-    archiveKey,
-    isMarketplaceLoading,
-    loadMarketplaceRecommendations,
-    marketplaceHasActiveSearch,
-    isMarketplaceConfigured,
-    marketplaceRecommendations.length,
-    open,
-    tab,
-  ]);
 
   const onCommit = async () => {
     if (!archiveKey || !canCommit) return;
@@ -676,24 +445,14 @@ export function SkillImportDialog({
   const allSelectionTitle = isAllSelected
     ? t("library.skillsImport.preview.selection.clearAll")
     : t("library.skillsImport.preview.selection.selectAll");
-  const showMarketplaceFooter = !hasPreview && tab === "marketplace";
   const isSingleCandidatePreview = hasPreview && candidates.length === 1;
   const singleCandidate = isSingleCandidatePreview ? candidates[0] : null;
-  const isSingleMarketplacePreview =
-    isSingleCandidatePreview && resolvedMarketplaceItem !== null;
   const singleSelection = singleCandidate
     ? (selections[singleCandidate.relative_path] ?? {
         selected: false,
         nameOverride: "",
       })
     : null;
-
-  const openMarketplaceSettings = React.useCallback(() => {
-    handleClose();
-    window.setTimeout(() => {
-      openSettings("other");
-    }, 180);
-  }, [handleClose, openSettings]);
 
   return (
     <>
@@ -708,13 +467,7 @@ export function SkillImportDialog({
           desktopMaxHeight="90dvh"
           bodyClassName="space-y-6 bg-background px-6 pt-4 pb-6"
           footer={
-            <DialogFooter
-              className={
-                showMarketplaceFooter
-                  ? "grid grid-cols-1"
-                  : "grid grid-cols-2 gap-2"
-              }
-            >
+            <DialogFooter className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 onClick={handleClose}
@@ -723,7 +476,7 @@ export function SkillImportDialog({
               >
                 {t("common.cancel")}
               </Button>
-              {!showMarketplaceFooter && !hasPreview ? (
+              {!hasPreview ? (
                 <Button
                   onClick={onDiscover}
                   disabled={isDiscovering}
@@ -734,7 +487,7 @@ export function SkillImportDialog({
                     : t("library.skillsImport.actions.discover")}
                 </Button>
               ) : null}
-              {!showMarketplaceFooter && hasPreview ? (
+              {hasPreview ? (
                 <Button
                   onClick={onCommit}
                   disabled={!canCommit || isCommitting}
@@ -784,12 +537,6 @@ export function SkillImportDialog({
               >
                 <TabsList className="flex h-auto flex-wrap gap-1 p-1 transition-colors duration-200">
                   <TabsTrigger
-                    value="marketplace"
-                    className="data-[state=inactive]:scale-[0.98]"
-                  >
-                    {t("library.skillsImport.tabs.marketplace")}
-                  </TabsTrigger>
-                  <TabsTrigger
                     value="github"
                     className="data-[state=inactive]:scale-[0.98]"
                   >
@@ -808,71 +555,6 @@ export function SkillImportDialog({
                     {t("library.skillsImport.tabs.zip")}
                   </TabsTrigger>
                 </TabsList>
-
-                <TabsContent value="marketplace" className="space-y-3">
-                  {isMarketplaceStatusLoading ? (
-                    <div className="flex min-h-[24rem] items-center justify-center rounded-[1.5rem] border border-border/60 bg-muted/20">
-                      <Loader2 className="size-5 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : !isMarketplaceConfigured ? (
-                    <Empty className="min-h-[24rem] rounded-[1.5rem] border border-border/60 bg-gradient-to-br from-muted/25 via-background to-background px-6 py-10">
-                      <EmptyHeader>
-                        <EmptyMedia
-                          variant="icon"
-                          className="size-14 rounded-2xl"
-                        >
-                          <Sparkles className="size-7" />
-                        </EmptyMedia>
-                        <EmptyTitle>
-                          {t("library.skillsImport.marketplace.setupTitle")}
-                        </EmptyTitle>
-                        <EmptyDescription>
-                          {t(
-                            "library.skillsImport.marketplace.setupDescription",
-                          )}
-                        </EmptyDescription>
-                      </EmptyHeader>
-                      <EmptyContent className="max-w-md">
-                        <p className="text-sm leading-6 text-muted-foreground">
-                          {t("library.skillsImport.marketplace.setupHint")}
-                        </p>
-                        <Button
-                          type="button"
-                          onClick={openMarketplaceSettings}
-                          className="min-w-44"
-                        >
-                          <Settings2 className="size-4" />
-                          {t("library.skillsImport.marketplace.openSettings")}
-                        </Button>
-                      </EmptyContent>
-                    </Empty>
-                  ) : (
-                    <SkillMarketplaceBrowser
-                      searchQuery={marketplaceQuery}
-                      onSearchQueryChange={setMarketplaceQuery}
-                      isSemanticSearch={isSemanticSearch}
-                      onSemanticSearchChange={setIsSemanticSearch}
-                      onSearch={() => {
-                        void searchMarketplace();
-                      }}
-                      onReset={() => {
-                        void resetMarketplaceSearch();
-                      }}
-                      onRefreshRecommendations={() => {
-                        void refreshMarketplaceRecommendations();
-                      }}
-                      isLoading={isMarketplaceLoading}
-                      errorMessage={marketplaceError}
-                      sections={marketplaceRecommendations}
-                      items={marketplaceSearchItems}
-                      hasActiveSearch={marketplaceHasActiveSearch}
-                      onDownload={(item) => {
-                        void onMarketplaceDownload(item);
-                      }}
-                      downloadingExternalId={marketplaceDownloadingId}
-                    />
-                  )}
-                </TabsContent>
 
                 <TabsContent value="zip" className="space-y-3">
                   <Input
@@ -1005,113 +687,9 @@ export function SkillImportDialog({
                   </div>
                 ) : null}
 
-                {isSingleMarketplacePreview &&
+                {isSingleCandidatePreview &&
                 singleCandidate &&
-                singleSelection &&
-                resolvedMarketplaceItem ? (
-                  <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
-                    <div className="space-y-4 bg-muted/40 px-5 py-4">
-                      <div className="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-start">
-                        <div className="flex items-center gap-2 pt-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          <Type className="size-3.5" />
-                          <span>
-                            {t("library.skillsImport.marketplace.titleLabel")}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="select-text text-base font-semibold text-foreground">
-                            {resolvedMarketplaceItem.name}
-                          </span>
-                          {singleCandidate.will_overwrite ? (
-                            <Badge variant="outline" className="text-xs">
-                              {t("library.skillsImport.preview.willOverwrite")}
-                            </Badge>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-start">
-                        <div className="flex items-center gap-2 pt-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          <AlignLeft className="size-3.5" />
-                          <span>
-                            {t(
-                              "library.skillsImport.marketplace.descriptionLabel",
-                            )}
-                          </span>
-                        </div>
-                        <p className="max-w-xl select-text text-sm leading-6 text-muted-foreground">
-                          {resolvedMarketplaceItem.description ||
-                            t("library.skillsImport.marketplace.noDescription")}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 px-5 py-4">
-                      <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-xs text-muted-foreground">
-                        {resolvedMarketplaceItem.github_url ? (
-                          <a
-                            href={resolvedMarketplaceItem.github_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
-                          >
-                            <Github className="size-3.5" />
-                            <span>
-                              {t(
-                                "library.skillsImport.marketplace.openInGithub",
-                              )}
-                            </span>
-                          </a>
-                        ) : null}
-                        <a
-                          href={resolvedMarketplaceItem.skillsmp_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
-                        >
-                          <ArrowUpRight className="size-3.5" />
-                          <span>
-                            {t(
-                              "library.skillsImport.marketplace.checkInSkillsmp",
-                            )}
-                          </span>
-                        </a>
-                      </div>
-
-                      {singleCandidate.requires_name ? (
-                        <div className="space-y-1">
-                          <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            {t("library.skillsImport.fields.nameOverride")}
-                          </Label>
-                          <Input
-                            value={singleSelection.nameOverride}
-                            disabled={selectionDisabled}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setSelections((prev) => ({
-                                ...prev,
-                                [singleCandidate.relative_path]: {
-                                  ...singleSelection,
-                                  selected: true,
-                                  nameOverride: value,
-                                },
-                              }));
-                            }}
-                            placeholder={t(
-                              "library.skillsImport.placeholders.name",
-                            )}
-                            className="font-mono"
-                          />
-                          <div className="text-xs text-muted-foreground">
-                            {t("library.skillsImport.hints.nameRequired")}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : isSingleCandidatePreview &&
-                  singleCandidate &&
-                  singleSelection ? (
+                singleSelection ? (
                   <div className="rounded-2xl border border-border/60 bg-muted/10 px-5 py-4">
                     <div className="space-y-3">
                       <div className="flex flex-wrap items-center gap-2">

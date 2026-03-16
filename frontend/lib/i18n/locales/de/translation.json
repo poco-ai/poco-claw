@@ -1541,7 +1541,7 @@
         "statusMissing": "Nicht konfiguriert",
         "keyLabel": "SkillsMP API-Schluessel",
         "keyPlaceholder": "Gib deinen SkillsMP API-Schluessel ein",
-        "help": "Dieser Schluessel aktiviert SkillsMP-Suche und Empfehlungen im Skill-Import-Dialog.",
+        "help": "Aktiviert SkillsMP-Suche und Empfehlungen im Skill-Import-Dialog.",
         "docsLink": "SkillsMP API-Dokumentation",
         "customKeySaved": "Fuer dieses Konto ist bereits ein benutzerdefinierter Schluessel gespeichert.",
         "save": "Schluessel speichern",

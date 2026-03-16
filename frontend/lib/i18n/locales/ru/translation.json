@@ -1537,7 +1537,7 @@
         "statusMissing": "Не настроено",
         "keyLabel": "API-ключ SkillsMP",
         "keyPlaceholder": "Введите API-ключ SkillsMP",
-        "help": "Этот ключ включает поиск и рекомендации SkillsMP в диалоге импорта skills.",
+        "help": "Включает поиск и рекомендации SkillsMP в диалоге импорта skills.",
         "docsLink": "Документация API SkillsMP",
         "customKeySaved": "Для этого аккаунта уже сохранен пользовательский ключ.",
         "save": "Сохранить ключ",
