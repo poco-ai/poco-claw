@@ -817,14 +817,19 @@ export function SkillImportDialog({
                   ) : !isMarketplaceConfigured ? (
                     <Empty className="min-h-[24rem] rounded-[1.5rem] border border-border/60 bg-gradient-to-br from-muted/25 via-background to-background px-6 py-10">
                       <EmptyHeader>
-                        <EmptyMedia variant="icon" className="size-14 rounded-2xl">
+                        <EmptyMedia
+                          variant="icon"
+                          className="size-14 rounded-2xl"
+                        >
                           <Sparkles className="size-7" />
                         </EmptyMedia>
                         <EmptyTitle>
                           {t("library.skillsImport.marketplace.setupTitle")}
                         </EmptyTitle>
                         <EmptyDescription>
-                          {t("library.skillsImport.marketplace.setupDescription")}
+                          {t(
+                            "library.skillsImport.marketplace.setupDescription",
+                          )}
                         </EmptyDescription>
                       </EmptyHeader>
                       <EmptyContent className="max-w-md">

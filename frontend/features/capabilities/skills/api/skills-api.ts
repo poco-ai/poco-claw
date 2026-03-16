@@ -168,12 +168,13 @@ export const skillsService = {
     );
   },
 
-  getMarketplaceStatus: async (): Promise<SkillsMpMarketplaceStatusResponse> => {
-    return apiClient.get<SkillsMpMarketplaceStatusResponse>(
-      API_ENDPOINTS.skillsMarketplaceStatus,
-      { cache: "no-store" },
-    );
-  },
+  getMarketplaceStatus:
+    async (): Promise<SkillsMpMarketplaceStatusResponse> => {
+      return apiClient.get<SkillsMpMarketplaceStatusResponse>(
+        API_ENDPOINTS.skillsMarketplaceStatus,
+        { cache: "no-store" },
+      );
+    },
 
   searchMarketplaceSkills: async (params: {
     q: string;

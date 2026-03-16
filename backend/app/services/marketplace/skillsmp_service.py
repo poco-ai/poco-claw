@@ -54,9 +54,7 @@ class SkillsMpService:
         env_map = self.env_var_service.get_env_map(db, user_id=user_id)
         configured = bool(
             (
-                env_map.get("SKILLSMP_API_KEY")
-                or self.settings.skillsmp_api_key
-                or ""
+                env_map.get("SKILLSMP_API_KEY") or self.settings.skillsmp_api_key or ""
             ).strip()
         )
         return SkillsMpMarketplaceStatusResponse(configured=configured)
@@ -194,7 +192,10 @@ class SkillsMpService:
                 message="SkillsMP item github_url cannot be empty",
             )
         parsed = urlparse(cleaned)
-        if parsed.scheme not in {"http", "https"} or parsed.netloc.lower() != "github.com":
+        if (
+            parsed.scheme not in {"http", "https"}
+            or parsed.netloc.lower() != "github.com"
+        ):
             raise AppException(
                 error_code=ErrorCode.BAD_REQUEST,
                 message="SkillsMP item github_url must point to github.com",
@@ -222,7 +223,9 @@ class SkillsMpService:
             return cleaned_github_url
 
         branch = self._clean_text(item.branch)
-        relative_skill_path = self._normalize_relative_skill_path(item.relative_skill_path)
+        relative_skill_path = self._normalize_relative_skill_path(
+            item.relative_skill_path
+        )
         if not branch or "/" in branch:
             return cleaned_github_url
 
@@ -230,7 +233,8 @@ class SkillsMpService:
         encoded_parts = [quote(part, safe="") for part in branch.split("/")]
         if relative_skill_path and relative_skill_path != ".":
             encoded_parts.extend(
-                quote(part, safe="") for part in PurePosixPath(relative_skill_path).parts
+                quote(part, safe="")
+                for part in PurePosixPath(relative_skill_path).parts
             )
         return f"{repo_root}/tree/{'/'.join(encoded_parts)}"
 
@@ -282,9 +286,10 @@ class SkillsMpService:
                 break
 
             candidate_parts = PurePosixPath(normalized_candidate).parts
-            if len(candidate_parts) <= len(target_parts) and target_parts[
-                -len(candidate_parts) :
-            ] == candidate_parts:
+            if (
+                len(candidate_parts) <= len(target_parts)
+                and target_parts[-len(candidate_parts) :] == candidate_parts
+            ):
                 suffix_matches.append(candidate.relative_path)
 
         if exact_match is not None:
@@ -325,7 +330,9 @@ class SkillsMpService:
         page: int,
         page_size: int,
     ) -> SkillsMpSearchResponse:
-        payload_data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
+        payload_data = (
+            payload.get("data") if isinstance(payload.get("data"), dict) else {}
+        )
 
         raw_items = payload_data.get("skills", payload.get("skills"))
         if not isinstance(raw_items, list):

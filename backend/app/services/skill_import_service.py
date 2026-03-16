@@ -156,9 +156,8 @@ class SkillImportService:
                     github_url=github_url, destination=source_path
                 )
                 source_name = "github.zip"
-                if (
-                    isinstance(archive_source_override, dict)
-                    and isinstance(archive_source_override.get("kind"), str)
+                if isinstance(archive_source_override, dict) and isinstance(
+                    archive_source_override.get("kind"), str
                 ):
                     archive_source = archive_source_override
 
@@ -674,7 +673,9 @@ class SkillImportService:
                     message="GitHub file payload is missing a filename",
                 )
             target_root.mkdir(parents=True, exist_ok=True)
-            (target_root / file_name).write_bytes(cls._download_github_file_bytes(payload))
+            (target_root / file_name).write_bytes(
+                cls._download_github_file_bytes(payload)
+            )
             return
 
         raise AppException(
@@ -685,7 +686,9 @@ class SkillImportService:
     @staticmethod
     def _zip_directory(*, source_dir: Path, destination: Path) -> None:
         destination.parent.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(
+            destination, "w", compression=zipfile.ZIP_DEFLATED
+        ) as zipf:
             for file_path in sorted(source_dir.rglob("*")):
                 if not file_path.is_file():
                     continue
@@ -706,9 +709,7 @@ class SkillImportService:
         with tempfile.TemporaryDirectory() as tmp_dir:
             export_base = Path(tmp_dir) / "export" / "__poco_export__"
             export_root = (
-                export_base / root_label
-                if isinstance(payload, list)
-                else export_base
+                export_base / root_label if isinstance(payload, list) else export_base
             )
             cls._materialize_github_contents(
                 owner=owner,

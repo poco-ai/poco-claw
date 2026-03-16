@@ -52,7 +52,9 @@ async def search_skills_marketplace(
         page_size=page_size,
         semantic=semantic,
     )
-    return Response.success(data=result, message="SkillsMP search completed successfully")
+    return Response.success(
+        data=result, message="SkillsMP search completed successfully"
+    )
 
 
 @router.get(
