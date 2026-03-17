@@ -66,6 +66,7 @@ function buildProviderConfig(
     hasStoredUserKey,
     hasStoredUserBaseUrl,
     isSaving: status?.savingProviderId === provider.provider_id,
+    enabled: true,
   };
 }
 
@@ -108,6 +109,7 @@ export function useModelProviderSettings(options?: { enabled?: boolean }) {
           return {
             ...nextProvider,
             modelDraft: previous.modelDraft,
+            enabled: previous.enabled,
           };
         });
       });

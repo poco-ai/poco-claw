@@ -40,6 +40,7 @@ export type ApiProviderConfig = {
   hasStoredUserKey: boolean;
   hasStoredUserBaseUrl: boolean;
   isSaving: boolean;
+  enabled: boolean;
 };
 
 export interface UsageAnalyticsMetricSummary {
