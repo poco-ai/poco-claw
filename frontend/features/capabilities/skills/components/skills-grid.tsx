@@ -308,7 +308,7 @@ export function SkillsGrid({
 
     return (
       <div className="space-y-3">
-        <div className="relative pl-1">
+        <div className="relative pl-0">
           <div className="space-y-0">
             {groups.map((group, index) => (
               <div
@@ -321,13 +321,13 @@ export function SkillsGrid({
                 {index > 0 ? (
                   <span
                     aria-hidden="true"
-                    className="absolute left-8 top-0 h-6 w-px bg-border/70"
+                    className="absolute left-6 top-0 h-6 w-px bg-border/70"
                   />
                 ) : null}
                 {index < groups.length - 1 ? (
                   <span
                     aria-hidden="true"
-                    className="absolute bottom-0 left-8 top-6 w-px bg-border/70"
+                    className="absolute bottom-0 left-6 top-6 w-px bg-border/70"
                   />
                 ) : null}
                 {(() => {
@@ -349,7 +349,7 @@ export function SkillsGrid({
                             return next;
                           });
                         }}
-                        className="flex w-full items-center gap-3 rounded-xl border border-transparent px-4 py-2 text-left"
+                        className="flex w-full items-center gap-3 rounded-xl border border-transparent py-2 pl-2 pr-3 text-left"
                         aria-expanded={!isCollapsed}
                       >
                         <CapabilitySourceAvatar
