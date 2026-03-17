@@ -299,7 +299,7 @@ function ProviderTabTrigger({ config }: { config: ApiProviderConfig }) {
   return (
     <TabsTrigger
       value={config.providerId}
-      className="h-auto min-w-[150px] flex-none items-start justify-between gap-3 rounded-2xl border border-transparent px-4 py-3 text-left text-foreground transition-all data-[state=active]:border-border/80 data-[state=active]:bg-background data-[state=active]:shadow-[var(--shadow-sm)]"
+      className="h-auto min-w-0 items-start justify-between gap-3 rounded-2xl border border-transparent px-4 py-3 text-left text-foreground transition-all data-[state=active]:border-border/80 data-[state=active]:bg-background data-[state=active]:shadow-[var(--shadow-sm)]"
     >
       <div className="min-w-0 space-y-1">
         <p className="truncate text-sm font-medium">{config.displayName}</p>
