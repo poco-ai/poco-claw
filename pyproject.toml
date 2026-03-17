@@ -11,10 +11,6 @@ dependencies = []
 src = ["backend", "executor", "executor_manager"]
 extend-exclude = ["backend/assets"]
 
-[[tool.uv.index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
-
 [tool.pyrefly]
 exclude = ["backend/assets"]
 
