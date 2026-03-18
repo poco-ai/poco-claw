@@ -295,8 +295,9 @@ export function SkillsMarketplacePageClient() {
 
   React.useEffect(() => {
     const handleConfigChanged = (event: Event) => {
-      const detail = (event as CustomEvent<SkillsMarketplaceConfigChangedDetail>)
-        .detail;
+      const detail = (
+        event as CustomEvent<SkillsMarketplaceConfigChangedDetail>
+      ).detail;
       void handleMarketplaceConfiguredChange(detail?.configured ?? false);
     };
 
