@@ -97,6 +97,8 @@ class Settings(BaseSettings):
     minimax_base_url: str | None = Field(default=None, alias="MINIMAX_BASE_URL")
     deepseek_api_key: str | None = Field(default=None, alias="DEEPSEEK_API_KEY")
     deepseek_base_url: str | None = Field(default=None, alias="DEEPSEEK_BASE_URL")
+    novita_api_key: str | None = Field(default=None, alias="NOVITA_API_KEY")
+    novita_base_url: str | None = Field(default=None, alias="NOVITA_BASE_URL")
     default_model: str = Field(
         default="claude-sonnet-4-20250514", alias="DEFAULT_MODEL"
     )

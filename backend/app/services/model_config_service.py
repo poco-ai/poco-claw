@@ -77,6 +77,19 @@ PROVIDER_SPECS: tuple[ProviderSpec, ...] = (
             ("deepseek-reasoner", "DeepSeek Reasoner"),
         ),
     ),
+    ProviderSpec(
+        provider_id="novita",
+        display_name="Novita AI",
+        api_key_env_key="NOVITA_API_KEY",
+        base_url_env_key="NOVITA_BASE_URL",
+        default_base_url="https://api.novita.ai/openai",
+        known_models=(
+            ("moonshotai/kimi-k2.5", "Kimi K2.5"),
+            ("deepseek/deepseek-v3.2", "DeepSeek V3.2"),
+            ("zai-org/glm-5", "GLM-5"),
+            ("qwen/qwen3-embedding-0.6b", "Qwen3 Embedding 0.6B"),
+        ),
+    ),
 )
 
 PROVIDER_SPEC_MAP = {spec.provider_id: spec for spec in PROVIDER_SPECS}
@@ -101,6 +114,13 @@ def infer_provider_id(model_id: str) -> str | None:
         return "minimax"
     if lowered.startswith("deepseek-"):
         return "deepseek"
+    if (
+        lowered.startswith("moonshotai/")
+        or lowered.startswith("deepseek/")
+        or lowered.startswith("zai-org/")
+        or lowered.startswith("qwen/")
+    ):
+        return "novita"
     return None
 
 

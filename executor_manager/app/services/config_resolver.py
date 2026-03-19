@@ -62,6 +62,15 @@ _PROVIDER_RUNTIME_SPECS: dict[str, ProviderRuntimeSpec] = {
         "runtime_api_key_env_key": "ANTHROPIC_API_KEY",
         "runtime_base_url_env_key": "ANTHROPIC_BASE_URL",
     },
+    "novita": {
+        "source_api_key_env_keys": ("NOVITA_API_KEY",),
+        "source_base_url_env_keys": ("NOVITA_BASE_URL",),
+        "source_api_key_settings_fields": ("novita_api_key",),
+        "source_base_url_settings_fields": ("novita_base_url",),
+        "default_base_url": "https://api.novita.ai/openai",
+        "runtime_api_key_env_key": "ANTHROPIC_API_KEY",
+        "runtime_base_url_env_key": "ANTHROPIC_BASE_URL",
+    },
 }
 
 
@@ -350,6 +359,13 @@ class ConfigResolver:
             return "minimax"
         if lowered.startswith("deepseek-"):
             return "deepseek"
+        if (
+            lowered.startswith("moonshotai/")
+            or lowered.startswith("deepseek/")
+            or lowered.startswith("zai-org/")
+            or lowered.startswith("qwen/")
+        ):
+            return "novita"
         return None
 
     @staticmethod
