@@ -13,6 +13,7 @@ import type {
   UserPluginInstall,
 } from "@/features/capabilities/plugins/types";
 import { useT } from "@/lib/i18n/client";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { CapabilityCreateCard } from "@/features/capabilities/components/capability-create-card";
 import { CapabilitySourceAvatar } from "@/features/capabilities/components/capability-source-avatar";
 
@@ -44,6 +45,7 @@ export function PluginsGrid({
   toolbarSlot,
 }: PluginsGridProps) {
   const { t } = useT("translation");
+  const isDemoMode = useDemoMode();
   const actionIconClass =
     "rounded-lg transition-opacity md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto";
 
@@ -69,6 +71,7 @@ export function PluginsGrid({
               variant="ghost"
               size="sm"
               onClick={() => onBatchToggle?.(false)}
+              disabled={isDemoMode}
               className="gap-2"
             >
               <PowerOff className="size-4" />
@@ -84,6 +87,7 @@ export function PluginsGrid({
           <CapabilityCreateCard
             label={createCardLabel}
             onClick={onCreate}
+            disabled={isDemoMode}
             className="min-h-[72px]"
           />
         ) : null}
@@ -108,6 +112,7 @@ export function PluginsGrid({
                 isLoading ||
                 loadingId === plugin.id ||
                 loadingId === install?.id;
+              const isRowDisabled = isRowLoading || isDemoMode;
               const avatarStatus =
                 isInstalled && install?.enabled ? "active" : "inactive";
 
@@ -159,7 +164,7 @@ export function PluginsGrid({
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={isRowLoading}
+                          disabled={isRowDisabled}
                           onClick={() => onDeletePlugin?.(plugin.id)}
                           className={actionIconClass}
                           title={t("common.delete")}
@@ -169,7 +174,7 @@ export function PluginsGrid({
                       )}
                       <Switch
                         checked={install.enabled}
-                        disabled={isRowLoading}
+                        disabled={isRowDisabled}
                         onCheckedChange={(enabled) =>
                           onToggleEnabled?.(install.id, enabled)
                         }
@@ -179,7 +184,7 @@ export function PluginsGrid({
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        disabled={isRowLoading}
+                        disabled={isRowDisabled}
                         onClick={() => onInstall?.(plugin.id)}
                       >
                         {t("library.pluginsManager.actions.install")}
@@ -188,7 +193,7 @@ export function PluginsGrid({
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={isRowLoading}
+                          disabled={isRowDisabled}
                           onClick={() => onDeletePlugin?.(plugin.id)}
                           className={actionIconClass}
                           title={t("common.delete")}

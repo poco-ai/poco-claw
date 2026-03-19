@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useT } from "@/lib/i18n/client";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import type { ComposerMode } from "@/features/task-composer/types";
 import { COMPOSER_MODE_SEQUENCE } from "@/features/task-composer/lib/mode-utils";
 import type { VoiceInputStatus } from "@/features/voice";
@@ -94,7 +95,8 @@ export function ComposerToolbar({
   onOpenScheduledSettings,
 }: ComposerToolbarProps) {
   const { t } = useT("translation");
-  const disabled = isSubmitting || isUploading;
+  const isDemoMode = useDemoMode();
+  const disabled = isSubmitting || isUploading || isDemoMode;
 
   return (
     <div className="flex w-full flex-wrap items-center justify-between gap-3">
@@ -178,13 +180,15 @@ export function ComposerToolbar({
             <Badge
               variant="secondary"
               role="button"
-              tabIndex={0}
+              tabIndex={disabled ? -1 : 0}
               className="inline-flex h-9 w-fit items-center gap-2 rounded-xl cursor-pointer select-none px-3 py-0"
-              onClick={onOpenScheduledSettings}
+              onClick={() => {
+                if (!disabled) onOpenScheduledSettings();
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  onOpenScheduledSettings();
+                  if (!disabled) onOpenScheduledSettings();
                 }
               }}
               aria-label={t("hero.modes.scheduled")}

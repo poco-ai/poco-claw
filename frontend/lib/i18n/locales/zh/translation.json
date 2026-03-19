@@ -3,6 +3,11 @@
   "description": "多服务 AI 智能体执行平台",
   "home": "首页",
   "language": "语言",
+  "demoMode": {
+    "banner": "为保证比赛期间稳定，暂时关闭。欢迎来展位了解体验。",
+    "readOnly": "只读模式",
+    "disabledInDemo": "演示模式下不可用"
+  },
   "sidebar": {
     "newTask": "新建任务",
     "newTaskWithShortcut": "新建任务 ({{shortcut}})",

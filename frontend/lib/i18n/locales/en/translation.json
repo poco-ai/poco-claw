@@ -3,6 +3,11 @@
   "description": "A multi-service AI agent execution platform",
   "home": "Home",
   "language": "Language",
+  "demoMode": {
+    "banner": "Temporarily disabled for competition stability. Visit our booth to experience the full version.",
+    "readOnly": "Read-Only Mode",
+    "disabledInDemo": "Not available in demo mode"
+  },
   "sidebar": {
     "newTask": "New Task",
     "newTaskWithShortcut": "New Task ({{shortcut}})",

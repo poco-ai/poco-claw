@@ -22,6 +22,7 @@ import type { SourceInfo } from "@/features/capabilities/types/source";
 import { formatSourceLabel } from "@/features/capabilities/utils/source";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { CapabilityCreateCard } from "@/features/capabilities/components/capability-create-card";
 import { CapabilitySourceAvatar } from "@/features/capabilities/components/capability-source-avatar";
 
@@ -64,6 +65,7 @@ export function SkillsGrid({
   toolbarSlot,
 }: SkillsGridProps) {
   const { t } = useT("translation");
+  const isDemoMode = useDemoMode();
   const [collapsedGroupKeys, setCollapsedGroupKeys] = React.useState<
     Set<string>
   >(() => new Set());
@@ -211,6 +213,7 @@ export function SkillsGrid({
     const isInstalled = hasInstall || isBuiltin;
     const isRowLoading =
       isLoading || loadingId === skill.id || loadingId === install?.id;
+    const isRowDisabled = isRowLoading || isDemoMode;
     const showDeleteAction = isHovered;
 
     return (
@@ -264,7 +267,7 @@ export function SkillsGrid({
                 <Button
                   variant="ghost"
                   size="icon"
-                  disabled={isRowLoading}
+                  disabled={isRowDisabled}
                   onClick={() => onDeleteSkill?.(skill.id)}
                   className={cn(
                     actionIconClass,
@@ -279,7 +282,7 @@ export function SkillsGrid({
               )}
               <Switch
                 checked={install.enabled}
-                disabled={isRowLoading}
+                disabled={isRowDisabled}
                 onCheckedChange={(enabled) =>
                   onToggleEnabled?.(install.id, enabled)
                 }
@@ -289,7 +292,7 @@ export function SkillsGrid({
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
-                disabled={isRowLoading}
+                disabled={isRowDisabled}
                 onClick={() => onInstall?.(skill.id)}
               >
                 {t("library.skillsManager.actions.install")}
@@ -298,7 +301,7 @@ export function SkillsGrid({
                 <Button
                   variant="ghost"
                   size="icon"
-                  disabled={isRowLoading}
+                  disabled={isRowDisabled}
                   onClick={() => onDeleteSkill?.(skill.id)}
                   className={cn(
                     actionIconClass,
@@ -431,6 +434,7 @@ export function SkillsGrid({
               variant="ghost"
               size="sm"
               onClick={() => onBatchToggle?.(false)}
+              disabled={isDemoMode}
               className="gap-2"
             >
               <PowerOff className="size-4" />
@@ -443,7 +447,11 @@ export function SkillsGrid({
 
       <div className="space-y-3">
         {createCardLabel ? (
-          <CapabilityCreateCard label={createCardLabel} onClick={onCreate} />
+          <CapabilityCreateCard
+            label={createCardLabel}
+            onClick={onCreate}
+            disabled={isDemoMode}
+          />
         ) : null}
 
         {isLoading && skills.length === 0 ? (

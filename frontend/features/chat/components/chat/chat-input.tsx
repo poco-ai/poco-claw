@@ -20,6 +20,7 @@ import { FileCard } from "@/components/shared/file-card";
 import { playUploadSound } from "@/lib/utils/sound";
 import { useSlashCommandAutocomplete } from "@/features/chat/hooks/use-slash-command-autocomplete";
 import { cn } from "@/lib/utils";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 
 interface ChatInputProps {
   value: string;
@@ -39,6 +40,8 @@ export function ChatInput({
   hasMessages = false,
 }: ChatInputProps) {
   const { t } = useT("translation");
+  const isDemoMode = useDemoMode();
+  const isDisabled = disabled || isDemoMode;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isComposing = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +75,7 @@ export function ChatInput({
       e.preventDefault();
       if (
         (value.trim() || attachments.length > 0) &&
-        !disabled &&
+        !isDisabled &&
         !isUploading
       ) {
         onSend(attachments);
@@ -222,7 +225,7 @@ export function ChatInput({
                 });
               }}
               placeholder={hasMessages ? "" : t("hero.placeholder")}
-              disabled={disabled}
+              disabled={isDisabled}
               className="min-h-[60px] max-h-[40vh] w-full resize-none border-0 p-0 text-base shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
               rows={1}
             />
@@ -238,7 +241,7 @@ export function ChatInput({
                 size="icon"
                 className="size-9 rounded-xl hover:bg-accent"
                 title={t("hero.uploadFile")}
-                disabled={disabled || isUploading}
+                disabled={isDisabled || isUploading}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {isUploading ? (
@@ -255,7 +258,7 @@ export function ChatInput({
                     size="icon"
                     className="size-9 rounded-xl hover:bg-accent"
                     title={t("hero.tools")}
-                    disabled={disabled}
+                    disabled={isDisabled}
                   >
                     <SlidersHorizontal className="size-4" />
                   </Button>
@@ -307,7 +310,7 @@ export function ChatInput({
                 }}
                 disabled={
                   (!value.trim() && attachments.length === 0) ||
-                  disabled ||
+                  isDisabled ||
                   isUploading
                 }
                 size="icon"

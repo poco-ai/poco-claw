@@ -14,6 +14,7 @@ import type {
   UserMcpInstall,
 } from "@/features/capabilities/mcp/types";
 import { useT } from "@/lib/i18n/client";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { CapabilityCreateCard } from "@/features/capabilities/components/capability-create-card";
 import { CapabilitySourceAvatar } from "@/features/capabilities/components/capability-source-avatar";
 
@@ -47,6 +48,7 @@ export function McpGrid({
   toolbarSlot,
 }: McpGridProps) {
   const { t } = useT("translation");
+  const isDemoMode = useDemoMode();
   const hoverActionsClass =
     "flex items-center gap-2 transition-opacity md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto";
   const installByServerId = React.useMemo(() => {
@@ -82,6 +84,7 @@ export function McpGrid({
               variant="ghost"
               size="sm"
               onClick={() => onBatchToggle?.(false)}
+              disabled={isDemoMode}
               className="gap-2"
               aria-label={t("mcpGrid.turnOffAll")}
             >
@@ -97,7 +100,11 @@ export function McpGrid({
 
       <div className="space-y-3">
         {createCardLabel ? (
-          <CapabilityCreateCard label={createCardLabel} onClick={onCreate} />
+          <CapabilityCreateCard
+            label={createCardLabel}
+            onClick={onCreate}
+            disabled={isDemoMode}
+          />
         ) : null}
 
         {isLoading && servers.length === 0 ? (
@@ -117,6 +124,7 @@ export function McpGrid({
               const install = installByServerId.get(server.id);
               const isEnabled = install?.enabled ?? false;
               const isRowLoading = loadingId === server.id;
+              const isRowDisabled = isRowLoading || isDemoMode;
               const avatarStatus =
                 enabledCount > MCP_LIMIT && isEnabled
                   ? "error"
@@ -163,6 +171,7 @@ export function McpGrid({
                         size="icon"
                         className="size-8"
                         onClick={() => onEditServer?.(server)}
+                        disabled={isRowDisabled}
                         title={t("mcpGrid.settings")}
                       >
                         <Settings className="size-4" />
@@ -173,7 +182,7 @@ export function McpGrid({
                           size="icon"
                           className="size-8"
                           onClick={() => onDeleteServer?.(server.id)}
-                          disabled={isRowLoading}
+                          disabled={isRowDisabled}
                           title={t("common.delete")}
                         >
                           <Trash2 className="size-4" />
@@ -183,7 +192,7 @@ export function McpGrid({
                     <Switch
                       checked={isEnabled}
                       onCheckedChange={() => onToggleInstall?.(server.id)}
-                      disabled={isRowLoading}
+                      disabled={isRowDisabled}
                     />
                   </div>
                 </div>

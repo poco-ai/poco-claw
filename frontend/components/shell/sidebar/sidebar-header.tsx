@@ -16,6 +16,7 @@ import {
 import { useT } from "@/lib/i18n/client";
 import { useLanguage } from "@/hooks/use-language";
 import { useMemoryFeatureEnabled } from "@/hooks/use-memory-feature-enabled";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useMobileSidebar } from "@/hooks/use-mobile-sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -90,6 +91,7 @@ export function SidebarHeaderSection({
   const router = useRouter();
   const lng = useLanguage();
   const memoryFeatureEnabled = useMemoryFeatureEnabled();
+  const isDemoMode = useDemoMode();
   const { toggleSidebar } = useSidebar();
   const { closeMobileSidebar } = useMobileSidebar();
   const isMacPlatform = React.useMemo(() => {
@@ -145,11 +147,16 @@ export function SidebarHeaderSection({
         <SidebarMenuItem>
           <SidebarMenuButton
             onClick={() => {
+              if (isDemoMode) return;
               onNewTask();
               closeMobileSidebar();
             }}
             data-onboarding="sidebar-new-task"
-            className="h-[36px] min-w-0 max-w-[calc(var(--sidebar-width)-16px)] w-full justify-start gap-3 rounded-[10px] px-3 py-[7.5px] text-muted-foreground transition-colors hover:bg-sidebar-accent focus-visible:ring-0 focus-visible:outline-none group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[collapsible=icon]:max-w-[var(--sidebar-width-icon)] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group/new-task"
+            className={cn(
+              "h-[36px] min-w-0 max-w-[calc(var(--sidebar-width)-16px)] w-full justify-start gap-3 rounded-[10px] px-3 py-[7.5px] text-muted-foreground transition-colors hover:bg-sidebar-accent focus-visible:ring-0 focus-visible:outline-none group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[collapsible=icon]:max-w-[var(--sidebar-width-icon)] group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group/new-task",
+              isDemoMode &&
+                "opacity-50 cursor-not-allowed hover:bg-transparent",
+            )}
             tooltip={t("sidebar.newTaskWithShortcut", {
               shortcut: isMacPlatform ? "⇧⌘O" : "Shift+Ctrl+O",
               defaultValue: "New Task (⇧⌘O)",

@@ -17,6 +17,8 @@ import { AppShellProvider } from "./app-shell-context";
 import { OnboardingTour, useOnboardingTour } from "@/features/onboarding";
 import { useSettingsShortcut } from "./hooks/use-settings-shortcut";
 import { useProjectActions } from "./hooks/use-project-actions";
+import { useDemoMode } from "@/hooks/use-demo-mode";
+import { DemoBanner } from "@/components/shared/demo-banner";
 
 export function AppShell({
   lng,
@@ -59,6 +61,7 @@ export function AppShell({
   });
 
   const onboarding = useOnboardingTour();
+  const isDemoMode = useDemoMode();
 
   const contextValue = React.useMemo(
     () => ({
@@ -119,6 +122,7 @@ export function AppShell({
             />
 
             <SidebarInset className="flex flex-col bg-muted/30 min-h-0">
+              {isDemoMode && <DemoBanner />}
               {children}
             </SidebarInset>
 

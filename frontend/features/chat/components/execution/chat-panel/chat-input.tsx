@@ -29,6 +29,7 @@ import { playUploadSound } from "@/lib/utils/sound";
 import { useSlashCommandAutocomplete } from "@/features/chat/hooks/use-slash-command-autocomplete";
 import { useFileDropUpload } from "@/features/task-composer";
 import { cn } from "@/lib/utils";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useLanguage } from "@/hooks/use-language";
 import { appendTranscribedText, useVoiceInput } from "@/features/voice";
 
@@ -71,6 +72,8 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
     ref,
   ) => {
     const { t } = useT("translation");
+    const isDemoMode = useDemoMode();
+    const isDisabled = disabled || isDemoMode;
     const [value, setValue] = useState("");
     const [attachments, setAttachments] = useState<InputFile[]>([]);
     const [isUploading, setIsUploading] = useState(false);
@@ -241,7 +244,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       [attachments, t],
     );
     const fileDrop = useFileDropUpload({
-      disabled: disabled || isUploading,
+      disabled: isDisabled || isUploading,
       onFilesDrop: uploadFiles,
     });
     const voiceInput = useVoiceInput({
@@ -320,7 +323,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (slashAutocomplete.handleKeyDown(e)) return;
         if (
-          disabled ||
+          isDisabled ||
           isComposingRef.current ||
           e.nativeEvent.isComposing ||
           e.altKey ||
@@ -374,7 +377,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
         attachments,
         handleSend,
         slashAutocomplete,
-        disabled,
+        isDisabled,
         historyIndex,
         history,
         applyValue,
@@ -479,7 +482,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  disabled={disabled || isUploading}
+                  disabled={isDisabled || isUploading}
                   onClick={() => fileInputRef.current?.click()}
                   className="self-end flex-shrink-0 flex items-center justify-center size-8 rounded-md hover:bg-accent text-muted-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={t("hero.uploadFile")}
@@ -504,7 +507,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
               onCompositionStart={handleCompositionStart}
               onCompositionEnd={handleCompositionEnd}
               placeholder={t("chat.inputPlaceholder")}
-              disabled={disabled}
+              disabled={isDisabled}
               rows={1}
               className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto py-1 scrollbar-hide"
               style={{
@@ -545,7 +548,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                           void voiceInput.toggleRecording();
                         }}
                         disabled={
-                          disabled ||
+                          isDisabled ||
                           isUploading ||
                           voiceInput.status === "transcribing"
                         }
@@ -584,7 +587,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                 <button
                   type="button"
                   onClick={handleSend}
-                  disabled={!hasDraft || disabled || voiceInput.isBusy}
+                  disabled={!hasDraft || isDisabled || voiceInput.isBusy}
                   className="self-end flex-shrink-0 flex items-center justify-center size-8 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={t("hero.send")}
                   title={t("hero.send")}

@@ -19,6 +19,7 @@ import { getNextComposerMode } from "@/features/task-composer/lib/mode-utils";
 import { useSlashCommandAutocomplete } from "@/features/chat/hooks/use-slash-command-autocomplete";
 import { useAppShell } from "@/components/shell/app-shell-context";
 import { useMemoryFeatureEnabled } from "@/hooks/use-memory-feature-enabled";
+import { useDemoMode } from "@/hooks/use-demo-mode";
 import { useFileDropUpload } from "@/features/task-composer/hooks/use-file-drop-upload";
 import { useFileUpload } from "@/features/task-composer/hooks/use-file-upload";
 import { appendTranscribedText, useVoiceInput } from "@/features/voice";
@@ -107,6 +108,7 @@ export function TaskComposer({
 }: TaskComposerProps) {
   const { t } = useT("translation");
   const { lng } = useAppShell();
+  const isDemoMode = useDemoMode();
   const memoryFeatureEnabled = useMemoryFeatureEnabled();
   const capabilityToggle = useCapabilityToggle();
   const isComposing = React.useRef(false);
@@ -553,7 +555,7 @@ export function TaskComposer({
           <Textarea
             ref={textareaRef}
             value={value}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isDemoMode}
             onChange={(e) => onChange(e.target.value)}
             onCompositionStart={() => (isComposing.current = true)}
             onCompositionEnd={() => {
