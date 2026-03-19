@@ -48,6 +48,11 @@ const PROVIDER_HELP_INFO: Record<string, ProviderHelpInfo> = {
       "https://platform.claude.com/docs/en/docs/about-claude/models",
     modelDocsName: "Claude",
   },
+  novita: {
+    apiKeyUrl: "https://novita.ai/settings/key-management",
+    modelDocsUrl: "https://novita.ai/docs/api-reference/llm-openai-compatible",
+    modelDocsName: "Novita AI",
+  },
 };
 
 function splitModelDraft(value: string): string[] {
