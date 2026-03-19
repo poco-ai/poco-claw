@@ -33,6 +33,7 @@ interface TaskActionsDropdownProps {
   onOpenChange?: (open: boolean) => void;
   align?: "start" | "center" | "end";
   side?: "top" | "right" | "bottom" | "left";
+  deleteDisabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -48,6 +49,7 @@ export function TaskActionsDropdown({
   onOpenChange,
   align = "end",
   side,
+  deleteDisabled = false,
   children,
 }: TaskActionsDropdownProps) {
   const { t } = useT("translation");
@@ -110,8 +112,10 @@ export function TaskActionsDropdown({
 
         <DropdownMenuItem
           variant="destructive"
+          disabled={deleteDisabled}
           onClick={(event) => {
             event.stopPropagation();
+            if (deleteDisabled) return;
             void onDelete(taskId);
           }}
         >

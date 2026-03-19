@@ -227,6 +227,7 @@ function DraggableTask({
             onRename={onRenameClick ? () => onRenameClick(task) : undefined}
             onMoveToProject={onMoveTaskToProject}
             onDelete={onDeleteTask}
+            deleteDisabled
             open={isDropdownOpen}
             onOpenChange={setIsDropdownOpen}
             side="right"
