@@ -85,3 +85,5 @@ For detailed deployment documentation and troubleshooting, please refer to the [
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=poco-ai/poco-agent&type=date&legend=top-left)](https://www.star-history.com/#poco-ai/poco-agent&type=date&legend=top-left)
+
+Thanks to [AtomGit](https://gitcode.com/poco-ai/poco-claw) for hosting the project in China, which helps users in mainland China access the project and download releases faster.
