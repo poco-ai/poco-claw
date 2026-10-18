@@ -220,3 +220,9 @@ def configure_logging(
     _configure_noisy_loggers(
         log_sql=bool(log_sql), access_log=bool(access_log), debug=debug
     )
+
+    # Initialize telemetry for product analytics
+    try:
+        from app.core.observability import telemetry  # noqa: F401
+    except ImportError:
+        pass
